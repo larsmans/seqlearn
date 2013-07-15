@@ -1,0 +1,13 @@
+*.py[cdo]
+*.so
+*~
+.#*
+*.sw[op]
+.DS_Store
+build/
+
+pip-log.txt
+
+*.tar.gz
+*.tgz
+*.zip
