@@ -1,6 +1,24 @@
 # Copyright Lars Buitinck 2013.
 
+"""Decoding (inference) algorithms."""
+
 import numpy as np
+
+
+def bestfirst(Phi, trans, init, final):
+    """First-order heuristic best-first decoder."""
+
+    n_samples, _ = Phi.shape
+
+    path = np.empty(n_samples, dtype=np.int32)
+    path[0] = np.argmax(init + Phi[0])
+
+    for i in xrange(1, n_samples - 1):
+        path[i] = np.argmax(trans[path[i - 1], :] + Phi[i])
+
+    path[-1] = np.argmax(trans[path[-2], :] + Phi[-1] + final)
+
+    return path
 
 
 def viterbi(Phi, trans, init, final):

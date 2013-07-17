@@ -2,9 +2,10 @@ from numpy.testing import assert_array_equal
 
 import numpy as np
 
-from seqlearn.viterbi import viterbi
+from seqlearn._decode import bestfirst, viterbi
 
-def test_viterbi():
+
+def test_wikipedia_example():
     # Example taken from Wikipedia. Samples can be "normal", "cold" or "dizzy"
     # (represented as one-hot feature vectors). States are "Healthy" and
     # "Fever". ['normal', 'cold', 'dizzy'] has most optimal state sequence
@@ -23,4 +24,5 @@ def test_viterbi():
                   [0, 0, 1]])
     Phi = np.dot(X, w.T)
 
+    assert_array_equal(bestfirst(Phi, trans, start, final), [0, 0, 1])
     assert_array_equal(viterbi(Phi, trans, start, final), [0, 0, 1])
