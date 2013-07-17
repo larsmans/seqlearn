@@ -4,7 +4,7 @@ from StringIO import StringIO
 
 import scipy.sparse as sp
 
-from skseq.datasets import load_conll
+from seqlearn.datasets import load_conll
 
 
 TEST_FILE = """
