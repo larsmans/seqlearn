@@ -68,3 +68,7 @@ def viterbi(Phi, trans, init, final):
         path[i] = backp[i + 1, path[i + 1]]
 
     return path
+
+
+DECODERS = {"bestfirst": bestfirst,
+            "viterbi": viterbi}
