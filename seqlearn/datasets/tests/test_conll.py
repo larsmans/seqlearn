@@ -1,4 +1,5 @@
 from nose.tools import assert_equal, assert_less, assert_true
+from numpy.testing import assert_array_equal
 
 from StringIO import StringIO
 
@@ -35,10 +36,10 @@ def features(words, i):
 def test_load_conll():
     n_nonempty = sum(1 for ln in TEST_FILE.splitlines() if ln.strip())
 
-    X, y, seqid = load_conll(StringIO(TEST_FILE), features)
+    X, y, offsets = load_conll(StringIO(TEST_FILE), features)
     assert_true(sp.isspmatrix(X))
     assert_equal(X.shape[0], n_nonempty)
     assert_equal(list(y),
                  ["Det", "N", "V", "Pre", "Det", "N", "Punc",
                   "Adv", "Punc"])
-    assert_equal(list(seqid), [0] * 7 + [1] * 2)
+    assert_array_equal(offsets, [0, 7])
