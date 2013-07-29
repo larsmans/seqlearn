@@ -43,3 +43,26 @@ def test_load_conll():
                  ["Det", "N", "V", "Pre", "Det", "N", "Punc",
                   "Adv", "Punc"])
     assert_array_equal(offsets, [0, 7])
+
+
+TEST_SPLIT = """
+    foo ham O
+    bar spam B
+    baz eggs I
+
+"""
+
+
+def features_split(words, i):
+    assert_true(isinstance(i, int))
+    assert_less(-1, i)
+    assert_less(i, len(words))
+
+    x1, x2 = words[i]
+    yield x1
+    yield x2
+
+
+def test_load_conll_split():
+    X, y, _ = load_conll(StringIO(TEST_SPLIT), features_split, split=True)
+    assert_equal(list(y), list("OBI"))

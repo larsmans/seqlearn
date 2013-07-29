@@ -7,20 +7,34 @@ import numpy as np
 from sklearn.feature_extraction import FeatureHasher
 
 
-def load_conll(f, features):
+def load_conll(f, features, split=False):
+    """Load CoNLL file, extract features on the tokens and hash them.
+
+    Parameters
+    ----------
+    f : {string, file-like}
+        Input file.
+    features : callable
+        Feature extraction function. Must take a list of tokens (see below)
+        and an index into this list.
+    split : boolean, default=False
+        Whether to split lines on whitespace beyond what is needed to parse
+        out the labels. This is useful for CoNLL files that have extra columns
+        containing information like part of speech tags.
+    """
     fh = FeatureHasher(input_type="string")
     labels = []
     offsets = []
 
     with _open(f) as f:
-        raw_X = _conll_sequences(f, features, labels, offsets)
+        raw_X = _conll_sequences(f, features, labels, offsets, split)
         X = fh.transform(raw_X)
 
     return X, np.asarray(labels), np.asarray(offsets, dtype=np.int32)
 
 
-def _conll_sequences(f, features, labels, offsets):
-    # Divide input blocks of empty and non-empty lines.
+def _conll_sequences(f, features, labels, offsets, split):
+    # Divide input into blocks of empty and non-empty lines.
     # Make sure first and last blocks have empty lines.
     lines = chain([""], imap(str.strip, f), [""])
     groups = groupby(lines, bool)
@@ -35,6 +49,8 @@ def _conll_sequences(f, features, labels, offsets):
         next(groups)    # consume empty lines
 
         obs, lbl = zip(*(ln.rsplit(None, 1) for ln in group))
+        if split:
+            obs = [x.split() for x in obs]
 
         labels.extend(lbl)
         offsets.append(offset)
