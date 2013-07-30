@@ -1,5 +1,7 @@
 import numpy as np
 
+from ._utils import check_random_state
+
 
 def bio_f_score(y_true, y_pred):
     """F-score for BIO-tagging scheme, as used by CoNLL.
@@ -61,3 +63,60 @@ def bio_f_score(y_true, y_pred):
     recall = tp / float(tp + fn)
 
     return 2. * precision * recall / (precision + recall)
+
+
+class SequenceKFold(object):
+    """Sequence-aware k-fold CV splitter.
+
+    Uses a greedy heuristic to partition input sequences into sets with roughly
+    equal numbers of samples, while keeping the sequences intact.
+
+    Parameters
+    ----------
+    lengths : array-like of integers, shape (n_samples,)
+        Lengths of sequences, in the order in which they appear in the dataset.
+    n_folds : int, optional
+        Number of folds.
+    shuffle : boolean, optional
+        Whether to shuffle sequences.
+    random_state : {np.random.RandomState, integer}, optional
+        Random state/random seed for shuffling.
+    """
+
+    def __init__(self, lengths, n_folds=3, indices=True,
+                 shuffle=False, random_state=None):
+        self.indices = indices
+        self.lengths = lengths
+        self.n_folds = n_folds
+        self.random_state = random_state
+        self.shuffle = shuffle
+
+    def __iter__(self):
+        rng = check_random_state(self.random_state)
+        lengths = self.lengths
+        starts = np.cumsum(lengths) - lengths
+        n_samples = np.sum(lengths)
+
+        seq_ind = np.arange(len(lengths))
+        if self.shuffle:
+            rng.shuffle(seq_ind)
+
+        folds = [[] for _ in range(self.n_folds)]
+
+        # Greedy strategy: always append to the currently smallest fold
+        for i in seq_ind:
+            seq = (starts[i], starts[i] + lengths[i])
+            min(folds, key=self._samples_in_fold).append(seq)
+
+        for f in folds:
+            mask = np.zeros(n_samples, dtype=bool)
+            for start, end in f:
+                mask[start:end] = True
+
+            if self.indices:
+                mask = np.where(mask)[0]
+            yield mask
+
+    @staticmethod
+    def _samples_in_fold(f):
+        return sum(end - start for start, end in f)
