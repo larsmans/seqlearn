@@ -1,4 +1,5 @@
 from nose.tools import assert_equal, assert_true
+from numpy.testing import assert_array_equal
 
 import numpy as np
 import re
@@ -41,14 +42,21 @@ def test_kfold():
                                   shuffle=True, indices=indices,
                                   random_state=random_state)
             folds = list(iter(kfold))
-            for f in folds:
+            for train, test in folds:
                 if indices:
-                    assert_true(np.issubdtype(f.dtype, np.integer))
-                    assert_true(np.all(f < len(y)))
+                    assert_true(np.issubdtype(train.dtype, np.integer))
+                    assert_true(np.issubdtype(test.dtype, np.integer))
+                    assert_true(np.all(train < len(y)))
+                    assert_true(np.all(test < len(y)))
                 else:
-                    assert_true(np.issubdtype(f.dtype, bool))
-                    assert_equal(len(f), len(y))
+                    assert_true(np.issubdtype(train.dtype, bool))
+                    assert_true(np.issubdtype(test.dtype, bool))
+                    assert_equal(len(train), len(y))
+                    assert_equal(len(test), len(y))
+                    assert_array_equal(~train, test)
 
-                y_f = ''.join(y[f])
+                y_train = ''.join(y[train])
+                y_test = ''.join(y[test])
                 # consistent BIO labeling preserved
-                assert_true(re.match(r'O*(?:BI*)O*', y_f))
+                assert_true(re.match(r'O*(?:BI*)O*', y_train))
+                assert_true(re.match(r'O*(?:BI*)O*', y_test))

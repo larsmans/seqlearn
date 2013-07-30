@@ -112,10 +112,15 @@ class SequenceKFold(object):
             samples_per_fold[fold_idx] += lengths[i]
 
         for f in folds:
-            mask = np.zeros(n_samples, dtype=bool)
+            test = np.zeros(n_samples, dtype=bool)
             for start, end in f:
-                mask[start:end] = True
+                test[start:end] = True
 
+            train = ~test
             if self.indices:
-                mask = np.where(mask)[0]
-            yield mask
+                train = np.where(train)[0]
+                test = np.where(test)[0]
+            yield train, test
+
+    def __len__(self):
+        return self.n_folds
