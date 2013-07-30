@@ -102,11 +102,14 @@ class SequenceKFold(object):
             rng.shuffle(seq_ind)
 
         folds = [[] for _ in range(self.n_folds)]
+        samples_per_fold = np.zeros(self.n_folds, dtype=int)
 
         # Greedy strategy: always append to the currently smallest fold
         for i in seq_ind:
             seq = (starts[i], starts[i] + lengths[i])
-            min(folds, key=self._samples_in_fold).append(seq)
+            fold_idx = np.argmin(samples_per_fold)
+            folds[fold_idx].append(seq)
+            samples_per_fold[fold_idx] += lengths[i]
 
         for f in folds:
             mask = np.zeros(n_samples, dtype=bool)
@@ -116,7 +119,3 @@ class SequenceKFold(object):
             if self.indices:
                 mask = np.where(mask)[0]
             yield mask
-
-    @staticmethod
-    def _samples_in_fold(f):
-        return sum(end - start for start, end in f)
