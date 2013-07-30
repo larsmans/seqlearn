@@ -24,23 +24,21 @@ def load_conll(f, features, split=False):
     """
     fh = FeatureHasher(input_type="string")
     labels = []
-    offsets = []
+    lengths = []
 
     with _open(f) as f:
-        raw_X = _conll_sequences(f, features, labels, offsets, split)
+        raw_X = _conll_sequences(f, features, labels, lengths, split)
         X = fh.transform(raw_X)
 
-    return X, np.asarray(labels), np.asarray(offsets, dtype=np.int32)
+    return X, np.asarray(labels), np.asarray(lengths, dtype=np.int32)
 
 
-def _conll_sequences(f, features, labels, offsets, split):
+def _conll_sequences(f, features, labels, lengths, split):
     # Divide input into blocks of empty and non-empty lines.
     # Make sure first and last blocks have empty lines.
     lines = chain([""], imap(str.strip, f), [""])
     groups = groupby(lines, bool)
     next(groups)
-
-    offset = 0
 
     for nonempty, group in groups:
         assert nonempty
@@ -53,8 +51,7 @@ def _conll_sequences(f, features, labels, offsets, split):
             obs = [x.split() for x in obs]
 
         labels.extend(lbl)
-        offsets.append(offset)
-        offset += len(lbl)
+        lengths.append(len(lbl))
         for i in xrange(len(obs)):
             yield features(obs, i)
 

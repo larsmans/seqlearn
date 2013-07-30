@@ -36,13 +36,13 @@ def features(words, i):
 def test_load_conll():
     n_nonempty = sum(1 for ln in TEST_FILE.splitlines() if ln.strip())
 
-    X, y, offsets = load_conll(StringIO(TEST_FILE), features)
+    X, y, lengths = load_conll(StringIO(TEST_FILE), features)
     assert_true(sp.isspmatrix(X))
     assert_equal(X.shape[0], n_nonempty)
     assert_equal(list(y),
                  ["Det", "N", "V", "Pre", "Det", "N", "Punc",
                   "Adv", "Punc"])
-    assert_array_equal(offsets, [0, 7])
+    assert_array_equal(lengths, [7, 2])
 
 
 TEST_SPLIT = """
