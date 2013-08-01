@@ -1,6 +1,6 @@
 # Copyright 2013 Lars Buitinck
 
-from __future__ import division
+from __future__ import division, print_function
 
 import numpy as np
 
@@ -99,7 +99,10 @@ class StructuredPerceptron(BaseSequenceClassifier):
         sequence_ids = np.arange(lengths.shape[0])
         rng = check_random_state(self.random_state)
 
-        for it in xrange(self.max_iter):
+        for it in xrange(1, self.max_iter + 1):
+            if self.verbose:
+                print("Iteration ", it)
+
             rng.shuffle(sequence_ids)
 
             sum_loss = 0

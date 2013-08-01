@@ -30,3 +30,9 @@ def test_perceptron():
     clf = clone(clf)
     clf.fit(X, y, [len(y)])
     assert_array_equal(y, clf.predict(X))
+
+
+def test_perceptron_single_iter():
+    """Assert that averaging works after a single iteration."""
+    clf = StructuredPerceptron(max_iter=1)
+    clf.fit([[1, 2, 3]], [1], [1])  # no exception
