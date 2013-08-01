@@ -81,8 +81,6 @@ class StructuredPerceptron(BaseSequenceClassifier):
         start = np.cumsum(lengths) - lengths
         end = start + lengths
 
-        t_trans, t_init, t_final = _count_trans(y, start, end, n_classes)
-
         w = np.zeros((n_classes, n_features))
         b = np.zeros(n_classes)
         w_trans = np.zeros((n_classes, n_classes))
@@ -108,11 +106,13 @@ class StructuredPerceptron(BaseSequenceClassifier):
             sum_loss = 0
 
             for i in sequence_ids:
-                Score = safe_sparse_dot(X[start[i]:end[i]], w.T) + b
+                X_i = X[start[i]:end[i]]
+                Score = safe_sparse_dot(X_i, w.T) + b
                 y_pred = decode(Score, w_trans, w_init, w_final)
                 Y_pred = y_pred.reshape(-1, 1) == class_range
                 Y_pred = Y_pred.astype(np.int32)
-                loss = (y_pred != y).sum()
+                y_t_i = y[start[i]:end[i]]
+                loss = (y_pred != y_t_i).sum()
 
                 if loss:
                     sum_loss += loss
@@ -120,14 +120,14 @@ class StructuredPerceptron(BaseSequenceClassifier):
                     Y_t_i = Y_true[start[i]:end[i]]
                     Y_diff = Y_pred - Y_t_i
 
-                    w -= lr * safe_sparse_dot(Y_diff.T, X)
+                    w -= lr * safe_sparse_dot(Y_diff.T, X_i)
                     b -= lr * Y_diff.sum(axis=0)
 
-                    p_trans, p_init, p_final = (
-                        _count_trans(y_pred, start, end, n_classes))
+                    t_trans = _count_trans(y_t_i, n_classes)
+                    p_trans = _count_trans(y_pred, n_classes)
                     w_trans -= lr * (p_trans - t_trans)
-                    w_init -= lr * (p_init - t_init)
-                    w_final -= lr * (p_final - t_final)
+                    w_init -= lr * (Y_pred[0] - Y_true[start[i]])
+                    w_final -= lr * (Y_pred[-1] - Y_true[end[i] - 1])
 
                 w_avg += w
                 b_avg += b
@@ -157,7 +157,7 @@ class StructuredPerceptron(BaseSequenceClassifier):
 
 
 # TODO handle second-order transitions (trigrams)
-def _count_trans(y, start, end, n_classes):
+def _count_trans(y, n_classes):
     """Count transitions in a target vector.
 
     Parameters
@@ -166,16 +166,7 @@ def _count_trans(y, start, end, n_classes):
     n_classes : int
         Number of distinct labels.
     """
-    #n_samples, = y.shape
-    trans = np.zeros((n_classes, n_classes))
-    inits = np.zeros(n_classes)
-    final = np.zeros(n_classes)
-
-    for i in xrange(len(start)):
-        #start, end = offsets[i], offsets[i + 1]
-        inits[y[start[i]]] += 1
-        final[y[end[i] - 1]] += 1
-        for j in xrange(start[i], end[i] - 1):
-            trans[y[j], y[j + 1]] += 1
-
-    return trans, inits, final
+    trans = np.zeros((n_classes, n_classes), dtype=np.int32)
+    for i in xrange(len(y) - 1):
+        trans[y[i], y[i + 1]] += 1
+    return trans
