@@ -1,3 +1,5 @@
+from functools import partial
+
 import numpy as np
 
 from ._utils import check_random_state
@@ -13,7 +15,8 @@ def bio_f_score(y_true, y_pred):
     y_true and y_pred, with false positives and false negatives defined
     similarly.
 
-    Tags schemes with classes (e.g. "B-NP") are not supported at the moment.
+    Support for tags schemes with classes (e.g. "B-NP") are limited: reported
+    scores may be too high for inconsistent labelings.
 
     Parameters
     ----------
@@ -36,17 +39,19 @@ def bio_f_score(y_true, y_pred):
     y_true = np.asarray(y_true)
     y_pred = np.asarray(y_pred)
 
+    is_b = partial(np.char.startswith, prefix="B")
+
     where = np.where
-    t_starts = where(y_true == "B")[0]
-    p_starts = where(y_pred == "B")[0]
+    t_starts = where(is_b(y_true))[0]
+    p_starts = where(is_b(y_pred))[0]
 
     # These lengths are off-by-one because we skip the "B", but that's ok.
     # http://stackoverflow.com/q/17929499/166749
-    t_lengths = np.diff(where(np.r_[y_true[y_true != 'O'], ['B']] == 'B')[0])
-    p_lengths = np.diff(where(np.r_[y_pred[y_pred != 'O'], ['B']] == 'B')[0])
+    t_lengths = np.diff(where(is_b(np.r_[y_true[y_true != 'O'], ['B']]))[0])
+    p_lengths = np.diff(where(is_b(np.r_[y_pred[y_pred != 'O'], ['B']]))[0])
 
-    t_segments = set(zip(t_starts, t_lengths))
-    p_segments = set(zip(p_starts, p_lengths))
+    t_segments = set(zip(t_starts, t_lengths, y_true[t_starts]))
+    p_segments = set(zip(p_starts, p_lengths, y_pred[p_starts]))
 
     # tp = len(t_segments & p_segments)
     # fn = len(t_segments - p_segments)
