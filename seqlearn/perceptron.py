@@ -15,6 +15,25 @@ class StructuredPerceptron(BaseSequenceClassifier):
     This implements the averaged structured perceptron algorithm of Collins,
     with the addition of a learning rate.
 
+    Parameters
+    ----------
+    decode : string, optional
+        Decoding algorithm, either "bestfirst" or "viterbi" (default).
+
+    learning_rate : float, optional
+        Learning rate.
+
+    max_iter : integer, optional
+        Number of iterations (aka. epochs). Each sequence is visited once in
+        each iteration.
+
+    random_state : {integer, np.random.RandomState}, optional
+        Random state or seed used for shuffling sequences within each
+        iteration.
+
+    verbose : integer, optional
+        Verbosity level. Defaults to zero (quiet mode).
+
     References
     ----------
     M. Collins (2002). Discriminative training methods for hidden Markov
@@ -30,6 +49,25 @@ class StructuredPerceptron(BaseSequenceClassifier):
         self.verbose = verbose
 
     def fit(self, X, y, lengths):
+        """Fit to a set of sequences.
+
+        Parameters
+        ----------
+        X : {array-like, sparse matrix}, shape (n_samples, n_features)
+            Feature matrix of individual samples.
+
+        y : array-like, shape (n_samples,)
+            Target labels.
+
+        lengths : array-like of integers, shape (n_sequences,)
+            Lengths of the individual sequences in X, y. The sum of these
+            should be n_samples.
+
+        Returns
+        -------
+        self : StructuredPerceptron
+        """
+
         X = atleast2d_or_csr(X)
 
         classes, y = np.unique(y, return_inverse=True)
