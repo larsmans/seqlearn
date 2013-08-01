@@ -4,8 +4,6 @@ from __future__ import division
 
 import numpy as np
 
-from sklearn.preprocessing import LabelBinarizer, LabelEncoder
-
 from .base import BaseSequenceClassifier
 from ._decode import viterbi
 from ._utils import atleast2d_or_csr, check_random_state, safe_sparse_dot
@@ -33,7 +31,11 @@ class StructuredPerceptron(BaseSequenceClassifier):
 
     def fit(self, X, y, lengths):
         X = atleast2d_or_csr(X)
-        y, Y_true = _one_hot(y)
+
+        classes, y = np.unique(y, return_inverse=True)
+        class_range = np.arange(len(classes))
+        Y_true = y.reshape(-1, 1) == class_range
+
         lengths = np.asarray(lengths)
         n_samples, n_features = X.shape
         n_classes = Y_true.shape[1]
@@ -70,7 +72,8 @@ class StructuredPerceptron(BaseSequenceClassifier):
             for i in sequence_ids:
                 Score = safe_sparse_dot(X[start[i]:end[i]], w.T) + b
                 y_pred = decode(Score, w_trans, w_init, w_final)
-                y_pred, Y_pred = _one_hot(y_pred)
+                Y_pred = y_pred.reshape(-1, 1) == class_range
+                Y_pred = Y_pred.astype(np.int32)
                 loss = (y_pred != y).sum()
 
                 if loss:
@@ -88,11 +91,11 @@ class StructuredPerceptron(BaseSequenceClassifier):
                     w_init -= lr * (p_init - t_init)
                     w_final -= lr * (p_final - t_final)
 
-                    w_avg += w
-                    b_avg += b
-                    w_trans_avg += w_trans
-                    w_init_avg += w_init
-                    w_final_avg += w_final
+                w_avg += w
+                b_avg += b
+                w_trans_avg += w_trans
+                w_init_avg += w_init
+                w_final_avg += w_final
 
             if self.verbose:
                 # XXX the loss reported is that for w, but the one for
@@ -100,15 +103,17 @@ class StructuredPerceptron(BaseSequenceClassifier):
                 print("Iteration %d, loss = %.3f" % (it + 1, loss / n_samples))
 
         self.coef_ = w_avg
-        self.coef_ /= n_samples * it
+        self.coef_ /= it * len(lengths)
         self.coef_init_ = w_init_avg
-        self.coef_init_ /= n_samples * it
+        self.coef_init_ /= it * len(lengths)
         self.coef_trans_ = w_trans_avg
-        self.coef_trans_ /= n_samples * it
+        self.coef_trans_ /= it * len(lengths)
         self.coef_final_ = w_final_avg
-        self.coef_final_ /= n_samples * it
+        self.coef_final_ /= it * len(lengths)
         self.intercept_ = b_avg
-        self.intercept_ /= n_samples * it
+        self.intercept_ /= it * len(lengths)
+
+        self.classes_ = classes
 
         return self
 
@@ -136,12 +141,3 @@ def _count_trans(y, start, end, n_classes):
             trans[y[j], y[j + 1]] += 1
 
     return trans, inits, final
-
-
-def _one_hot(y):
-    y = LabelEncoder().fit_transform(y)
-    Y = LabelBinarizer().fit_transform(y)
-    if len(Y.shape) == 1:
-        Y = np.atleast_2d(Y).T
-        Y = np.hstack([1 - Y, Y])
-    return y, Y
