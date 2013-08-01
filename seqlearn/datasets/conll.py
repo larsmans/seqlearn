@@ -7,7 +7,7 @@ import numpy as np
 from sklearn.feature_extraction import FeatureHasher
 
 
-def load_conll(f, features, split=False):
+def load_conll(f, features, n_features=(2 ** 16), split=False):
     """Load CoNLL file, extract features on the tokens and hash them.
 
     Parameters
@@ -17,12 +17,14 @@ def load_conll(f, features, split=False):
     features : callable
         Feature extraction function. Must take a list of tokens (see below)
         and an index into this list.
+    n_features : integer, optional
+        Number of columns in the output.
     split : boolean, default=False
         Whether to split lines on whitespace beyond what is needed to parse
         out the labels. This is useful for CoNLL files that have extra columns
         containing information like part of speech tags.
     """
-    fh = FeatureHasher(input_type="string")
+    fh = FeatureHasher(n_features=n_features, input_type="string")
     labels = []
     lengths = []
 
