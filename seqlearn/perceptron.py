@@ -5,7 +5,6 @@ from __future__ import division
 import numpy as np
 
 from .base import BaseSequenceClassifier
-from ._decode import viterbi
 from ._utils import atleast2d_or_csr, check_random_state, safe_sparse_dot
 
 
@@ -68,6 +67,8 @@ class StructuredPerceptron(BaseSequenceClassifier):
         self : StructuredPerceptron
         """
 
+        decode = self._get_decoder()
+
         X = atleast2d_or_csr(X)
 
         classes, y = np.unique(y, return_inverse=True)
@@ -97,8 +98,6 @@ class StructuredPerceptron(BaseSequenceClassifier):
 
         sequence_ids = np.arange(lengths.shape[0])
         rng = check_random_state(self.random_state)
-
-        decode = viterbi
 
         for it in xrange(self.max_iter):
             rng.shuffle(sequence_ids)
