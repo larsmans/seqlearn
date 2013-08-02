@@ -83,13 +83,11 @@ class StructuredPerceptron(BaseSequenceClassifier):
         start = end - lengths
 
         w = np.zeros((n_classes, n_features))
-        b = np.zeros(n_classes)
         w_trans = np.zeros((n_classes, n_classes))
         w_init = np.zeros(n_classes)
         w_final = np.zeros(n_classes)
 
         w_avg = np.zeros(w.shape)
-        b_avg = np.zeros(b.shape)
         w_trans_avg = np.zeros(w_trans.shape)
         w_init_avg = np.zeros(w_init.shape)
         w_final_avg = np.zeros(w_final.shape)
@@ -109,7 +107,7 @@ class StructuredPerceptron(BaseSequenceClassifier):
 
             for i in sequence_ids:
                 X_i = X[start[i]:end[i]]
-                Score = safe_sparse_dot(X_i, w.T) + b
+                Score = safe_sparse_dot(X_i, w.T)
                 y_pred = decode(Score, w_trans, w_init, w_final)
                 Y_pred = y_pred.reshape(-1, 1) == class_range
                 Y_pred = Y_pred.astype(np.int32)
@@ -123,7 +121,6 @@ class StructuredPerceptron(BaseSequenceClassifier):
                     Y_diff = Y_pred - Y_t_i
 
                     w -= lr * safe_sparse_dot(Y_diff.T, X_i)
-                    b -= lr * Y_diff.sum(axis=0)
 
                     t_trans = _count_trans(y_t_i, n_classes)
                     p_trans = _count_trans(y_pred, n_classes)
@@ -132,7 +129,6 @@ class StructuredPerceptron(BaseSequenceClassifier):
                     w_final -= lr * (Y_pred[-1] - Y_true[end[i] - 1])
 
                 w_avg += w
-                b_avg += b
                 w_trans_avg += w_trans
                 w_init_avg += w_init
                 w_final_avg += w_final
@@ -150,8 +146,6 @@ class StructuredPerceptron(BaseSequenceClassifier):
         self.coef_trans_ /= it * len(lengths)
         self.coef_final_ = w_final_avg
         self.coef_final_ /= it * len(lengths)
-        self.intercept_ = b_avg
-        self.intercept_ /= it * len(lengths)
 
         self.classes_ = classes
 

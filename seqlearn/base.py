@@ -12,7 +12,7 @@ class BaseSequenceClassifier(BaseEstimator, ClassifierMixin):
             return ValueError("Unknown decoder {0!r}".format(self.decode))
 
     def predict(self, X):
-        Scores = safe_sparse_dot(X, self.coef_.T) + self.intercept_
+        Scores = safe_sparse_dot(X, self.coef_.T)
         y = DECODERS[self.decode](Scores, self.coef_trans_,
                                   self.coef_init_, self.coef_final_)
         return self.classes_[y]
