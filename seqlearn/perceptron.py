@@ -79,8 +79,8 @@ class StructuredPerceptron(BaseSequenceClassifier):
         n_samples, n_features = X.shape
         n_classes = Y_true.shape[1]
 
-        start = np.cumsum(lengths) - lengths
-        end = start + lengths
+        end = np.cumsum(lengths)
+        start = end - lengths
 
         w = np.zeros((n_classes, n_features))
         b = np.zeros(n_classes)
