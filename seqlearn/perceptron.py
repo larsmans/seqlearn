@@ -5,7 +5,8 @@ from __future__ import division, print_function
 import numpy as np
 
 from .base import BaseSequenceClassifier
-from ._utils import atleast2d_or_csr, check_random_state, safe_sparse_dot
+from ._utils import (atleast2d_or_csr, check_random_state, count_trans,
+                     safe_sparse_dot)
 
 
 class StructuredPerceptron(BaseSequenceClassifier):
@@ -122,8 +123,8 @@ class StructuredPerceptron(BaseSequenceClassifier):
 
                     w -= lr * safe_sparse_dot(Y_diff.T, X_i)
 
-                    t_trans = _count_trans(y_t_i, n_classes)
-                    p_trans = _count_trans(y_pred, n_classes)
+                    t_trans = count_trans(y_t_i, n_classes)
+                    p_trans = count_trans(y_pred, n_classes)
                     w_trans -= lr * (p_trans - t_trans)
                     w_init -= lr * (Y_pred[0] - Y_true[start[i]])
                     w_final -= lr * (Y_pred[-1] - Y_true[end[i] - 1])
@@ -150,19 +151,3 @@ class StructuredPerceptron(BaseSequenceClassifier):
         self.classes_ = classes
 
         return self
-
-
-# TODO handle second-order transitions (trigrams)
-def _count_trans(y, n_classes):
-    """Count transitions in a target vector.
-
-    Parameters
-    ----------
-    y : array, shape = n_samples
-    n_classes : int
-        Number of distinct labels.
-    """
-    trans = np.zeros((n_classes, n_classes), dtype=np.int32)
-    for i in xrange(len(y) - 1):
-        trans[y[i], y[i + 1]] += 1
-    return trans
