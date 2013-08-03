@@ -3,6 +3,17 @@
 seqlearn
 ========
 
-Tentative sequence classification toolkit for Python.
+seqlearn is a sequence classification toolkit for Python. It is designed to
+extend `scikit-learn <http://scikit-learn.org>`_ and offer as similar as
+possible an API.
 
-Requires NumPy, SciPy and a recent version of scikit-learn.
+
+Getting started
+===============
+
+Get NumPy >=1.4, SciPy >=0.10 and a recent version of scikit-learn.
+Then issue::
+
+    python setup.py install
+
+to install seqlearn.
