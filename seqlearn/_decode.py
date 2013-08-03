@@ -48,7 +48,7 @@ def viterbi(Phi, trans, init, final):
     dp[0, :] = init + Phi[0, :]
 
     backp = np.empty((n_samples, n_states), dtype=np.int32)
-    _idx = np.mgrid[0:n_states]
+    _idx = np.arange(n_states)
 
     for i in xrange(1, n_samples):
         candidates = trans.T + Phi[i, :].reshape((n_states, 1)) + dp[i - 1, :]
