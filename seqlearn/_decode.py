@@ -48,15 +48,13 @@ def viterbi(Phi, trans, init, final):
     dp[0, :] = init + Phi[0, :]
 
     backp = np.empty((n_samples, n_states), dtype=np.int32)
+    idx = np.arange(n_states)
 
     for i in xrange(1, n_samples):
-        for k in xrange(n_states):
-            # XXX there's probably a vectorized way to do this
-            # (with outer products?)
-            cand = dp[i - 1] + trans[:, k] + Phi[i, k]
-            best = cand.argmax()
-            backp[i, k] = best
-            dp[i, k] = cand[best]
+        candidates = trans.T + Phi[i, :].reshape((n_states, 1)) + dp[i - 1, :]
+        backp_i = np.argmax(candidates, axis=1)
+        backp[i, :] = backp_i
+        dp[i, :] = candidates[idx, backp_i]
 
     dp[-1, :] += final
 
