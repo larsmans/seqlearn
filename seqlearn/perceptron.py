@@ -83,15 +83,15 @@ class StructuredPerceptron(BaseSequenceClassifier):
         end = np.cumsum(lengths)
         start = end - lengths
 
-        w = np.zeros((n_classes, n_features))
+        w = np.zeros((n_classes, n_features), order='F')
         w_trans = np.zeros((n_classes, n_classes))
         w_init = np.zeros(n_classes)
         w_final = np.zeros(n_classes)
 
-        w_avg = np.zeros(w.shape)
-        w_trans_avg = np.zeros(w_trans.shape)
-        w_init_avg = np.zeros(w_init.shape)
-        w_final_avg = np.zeros(w_final.shape)
+        w_avg = np.zeros_like(w)
+        w_trans_avg = np.zeros_like(w_trans)
+        w_init_avg = np.zeros_like(w_init)
+        w_final_avg = np.zeros_like(w_final)
 
         lr = self.learning_rate
 
