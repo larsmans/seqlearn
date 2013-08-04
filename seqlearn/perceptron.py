@@ -110,8 +110,6 @@ class StructuredPerceptron(BaseSequenceClassifier):
                 X_i = X[start[i]:end[i]]
                 Score = safe_sparse_dot(X_i, w.T)
                 y_pred = decode(Score, w_trans, w_init, w_final)
-                Y_pred = y_pred.reshape(-1, 1) == class_range
-                Y_pred = Y_pred.astype(np.int32)
                 y_t_i = y[start[i]:end[i]]
                 loss = (y_pred != y_t_i).sum()
 
@@ -119,9 +117,12 @@ class StructuredPerceptron(BaseSequenceClassifier):
                     sum_loss += loss
 
                     Y_t_i = Y_true[start[i]:end[i]]
-                    Y_diff = Y_pred - Y_t_i
+                    Y_pred = y_pred.reshape(-1, 1) == class_range
+                    Y_pred = Y_pred.astype(np.float64)
 
-                    w -= lr * safe_sparse_dot(Y_diff.T, X_i)
+                    Y_diff = Y_pred - Y_t_i
+                    Y_diff *= lr
+                    w -= safe_sparse_dot(Y_diff.T, X_i)
 
                     t_trans = count_trans(y_t_i, n_classes)
                     p_trans = count_trans(y_pred, n_classes)
