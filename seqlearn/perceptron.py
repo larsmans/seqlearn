@@ -137,7 +137,7 @@ class StructuredPerceptron(BaseSequenceClassifier):
             if self.verbose:
                 # XXX the loss reported is that for w, but the one for
                 # w_avg is what matters for early stopping.
-                print("Iteration %d, loss = %.3f" % (it + 1, loss / n_samples))
+                print("Loss = {0:.4f}".format(loss / n_samples))
 
         self.coef_ = w_avg
         self.coef_ /= it * len(lengths)
