@@ -3,7 +3,7 @@ from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.metrics import accuracy_score
 
 from ._decode import DECODERS
-from ._utils import safe_sparse_dot
+from ._utils import atleast2d_or_csr, safe_sparse_dot, validate_lengths
 
 
 # XXX Should we even derive from ClassifierMixin here?
@@ -32,6 +32,7 @@ class BaseSequenceClassifier(BaseEstimator, ClassifierMixin):
         y : array, shape (n_samples,)
             Labels per sample in X.
         """
+        X = atleast2d_or_csr(X)
         Scores = safe_sparse_dot(X, self.coef_.T)
         decode = DECODERS[self.decode]
 
@@ -39,9 +40,7 @@ class BaseSequenceClassifier(BaseEstimator, ClassifierMixin):
             y = decode(Scores, self.coef_trans_,
                        self.coef_init_, self.coef_final_)
         else:
-            lengths = np.asarray(lengths, dtype=np.int32)
-            end = np.cumsum(lengths)
-            start = end - lengths
+            start, end = validate_lengths(X.shape[0], lengths)
 
             y = [decode(Scores[start[i]:end[i]], self.coef_trans_,
                         self.coef_init_, self.coef_final_)

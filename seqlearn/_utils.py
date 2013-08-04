@@ -20,3 +20,35 @@ def count_trans(y, n_classes):
     for i in xrange(len(y) - 1):
         trans[y[i], y[i + 1]] += 1
     return trans
+
+
+def validate_lengths(n_samples, lengths):
+    """Validate lengths array against n_samples.
+
+    Parameters
+    ----------
+    n_samples : integer
+        Total number of samples.
+
+    lengths : array-like of integers, shape (n_sequences,), optional
+        Lengths of individual sequences in the input.
+
+    Returns
+    -------
+    start : array of integers, shape (n_sequences,)
+        Start indices of sequences.
+
+    end : array of integers, shape (n_sequences,)
+        One-past-the-end indices of sequences.
+    """
+    if lengths is None:
+        lengths = [n_samples]
+    lengths = np.asarray(lengths, dtype=np.int32)
+    if lengths.sum() > n_samples:
+        msg = "More than {0:d} samples in lengths array {1!s}"
+        raise ValueError(msg.format(n_samples, lengths))
+
+    end = np.cumsum(lengths)
+    start = end - lengths
+
+    return start, end
