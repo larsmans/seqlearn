@@ -31,6 +31,10 @@ def test_perceptron():
     clf.fit(X, y, [len(y)])
     assert_array_equal(y, clf.predict(X))
 
+    X2 = np.vstack([X, X])
+    y2 = np.hstack([y, y])
+    assert_array_equal(y2, clf.predict(X2, lengths=[len(y), len(y)]))
+
 
 def test_perceptron_single_iter():
     """Assert that averaging works after a single iteration."""
