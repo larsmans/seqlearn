@@ -11,8 +11,8 @@ possible an API.
 Getting started
 ===============
 
-Get NumPy >=1.4, SciPy >=0.10 and a recent version of scikit-learn.
-Then issue::
+Get NumPy >=1.4, SciPy >=0.10, Cython >=0.19 and a recent version of
+scikit-learn. Then issue::
 
     python setup.py install
 
