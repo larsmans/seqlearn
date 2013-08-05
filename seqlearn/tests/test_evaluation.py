@@ -43,12 +43,15 @@ def test_kfold():
         kfold = SequenceKFold(map(len, sequences), n_folds=3, shuffle=True,
                               random_state=random_state)
         folds = list(iter(kfold))
-        for train, test in folds:
+        for train, lengths_train, test, lengths_test in folds:
             assert_true(np.issubdtype(train.dtype, np.integer))
             assert_true(np.issubdtype(test.dtype, np.integer))
 
             assert_true(np.all(train < len(y)))
             assert_true(np.all(test < len(y)))
+
+            assert_equal(len(train), sum(lengths_train))
+            assert_equal(len(test), sum(lengths_test))
 
             y_train = ''.join(y[train])
             y_test = ''.join(y[test])
@@ -73,5 +76,7 @@ def test_kfold_repeated():
             folds = list(kfold)
             assert_equal(len(folds), n_folds * n_iter)
 
-            for train, test in folds:
+            for train, lengths_train, test, lengths_test in folds:
+                assert_equal(sum(lengths_train), len(train))
+                assert_equal(sum(lengths_test), len(test))
                 assert_equal(len(train) + len(test), n_samples)

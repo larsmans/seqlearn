@@ -95,10 +95,21 @@ class SequenceKFold(object):
 
     random_state : {np.random.RandomState, integer}, optional
         Random state/random seed for shuffling.
+
+    yield_lengths : boolean, optional
+        Whether to yield lengths in addition to indices/masks for both
+        training and test sets.
+
+    Returns
+    -------
+    A generator yielding (train_indices, test_indices) pairs when
+    yield_lengths is false, or tuples
+    (train_indices, train_lengths, test_indices, test_lengths)
+    when yield_lengths is true.
     """
 
     def __init__(self, lengths, n_folds=3, n_iter=1, shuffle=False,
-                 random_state=None):
+                 random_state=None, yield_lengths=True):
         if n_iter > 1 and not shuffle:
             warn("n_iter > 1 makes little sense without shuffling!")
         self.lengths = lengths
@@ -106,10 +117,11 @@ class SequenceKFold(object):
         self.n_iter = n_iter
         self.random_state = random_state
         self.shuffle = shuffle
+        self.yield_lengths = yield_lengths
 
     def __iter__(self):
         rng = check_random_state(self.random_state)
-        lengths = self.lengths
+        lengths = np.asarray(self.lengths, dtype=np.int32)
         starts = np.cumsum(lengths) - lengths
         n_samples = np.sum(lengths)
 
@@ -124,20 +136,28 @@ class SequenceKFold(object):
 
             # Greedy strategy: always append to the currently smallest fold
             for i in seq_ind:
-                seq = (starts[i], starts[i] + lengths[i])
+                seq = (i, starts[i], starts[i] + lengths[i])
                 fold_idx = np.argmin(samples_per_fold)
                 folds[fold_idx].append(seq)
                 samples_per_fold[fold_idx] += lengths[i]
 
             for f in folds:
                 test = np.zeros(n_samples, dtype=bool)
-                for start, end in f:
+                lengths_test_mask = np.zeros(len(lengths), dtype=bool)
+                for i, start, end in f:
                     test[start:end] = True
+                    lengths_test_mask[i] = True
 
                 train = ~test
                 train = np.where(train)[0]
                 test = np.where(test)[0]
-                yield train, test
+                lengths_test = lengths[lengths_test_mask]
+                lengths_train = lengths[~lengths_test_mask]
+
+                if self.yield_lengths:
+                    yield train, lengths_train, test, lengths_test
+                else:
+                    yield train, test
 
     def __len__(self):
         return self.n_folds * self.n_iter
