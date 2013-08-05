@@ -1,4 +1,5 @@
 from functools import partial
+from warnings import warn
 
 import numpy as np
 
@@ -71,7 +72,7 @@ def bio_f_score(y_true, y_pred):
 
 
 class SequenceKFold(object):
-    """Sequence-aware k-fold CV splitter.
+    """Sequence-aware (repeated) k-fold CV splitter.
 
     Uses a greedy heuristic to partition input sequences into sets with roughly
     equal numbers of samples, while keeping the sequences intact.
@@ -80,17 +81,29 @@ class SequenceKFold(object):
     ----------
     lengths : array-like of integers, shape (n_samples,)
         Lengths of sequences, in the order in which they appear in the dataset.
+
     n_folds : int, optional
         Number of folds.
+
+    n_iter : int, optional
+        Number of iterations of repeated k-fold splitting. The default value
+        is 1, meaning a single k-fold split; values >1 give repeated k-fold
+        with shuffling (see below).
+
     shuffle : boolean, optional
         Whether to shuffle sequences.
+
     random_state : {np.random.RandomState, integer}, optional
         Random state/random seed for shuffling.
     """
 
-    def __init__(self, lengths, n_folds=3, shuffle=False, random_state=None):
+    def __init__(self, lengths, n_folds=3, n_iter=1, shuffle=False,
+                 random_state=None):
+        if n_iter > 1 and not shuffle:
+            warn("n_iter > 1 makes little sense without shuffling!")
         self.lengths = lengths
         self.n_folds = n_folds
+        self.n_iter = n_iter
         self.random_state = random_state
         self.shuffle = shuffle
 
@@ -101,28 +114,30 @@ class SequenceKFold(object):
         n_samples = np.sum(lengths)
 
         seq_ind = np.arange(len(lengths))
-        if self.shuffle:
-            rng.shuffle(seq_ind)
 
-        folds = [[] for _ in range(self.n_folds)]
-        samples_per_fold = np.zeros(self.n_folds, dtype=int)
+        for _ in xrange(self.n_iter):
+            if self.shuffle:
+                rng.shuffle(seq_ind)
 
-        # Greedy strategy: always append to the currently smallest fold
-        for i in seq_ind:
-            seq = (starts[i], starts[i] + lengths[i])
-            fold_idx = np.argmin(samples_per_fold)
-            folds[fold_idx].append(seq)
-            samples_per_fold[fold_idx] += lengths[i]
+            folds = [[] for _ in range(self.n_folds)]
+            samples_per_fold = np.zeros(self.n_folds, dtype=int)
 
-        for f in folds:
-            test = np.zeros(n_samples, dtype=bool)
-            for start, end in f:
-                test[start:end] = True
+            # Greedy strategy: always append to the currently smallest fold
+            for i in seq_ind:
+                seq = (starts[i], starts[i] + lengths[i])
+                fold_idx = np.argmin(samples_per_fold)
+                folds[fold_idx].append(seq)
+                samples_per_fold[fold_idx] += lengths[i]
 
-            train = ~test
-            train = np.where(train)[0]
-            test = np.where(test)[0]
-            yield train, test
+            for f in folds:
+                test = np.zeros(n_samples, dtype=bool)
+                for start, end in f:
+                    test[start:end] = True
+
+                train = ~test
+                train = np.where(train)[0]
+                test = np.where(test)[0]
+                yield train, test
 
     def __len__(self):
-        return self.n_folds
+        return self.n_folds * self.n_iter

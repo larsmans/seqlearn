@@ -55,3 +55,23 @@ def test_kfold():
             # consistent BIO labeling preserved
             assert_true(re.match(r'O*(?:BI*)O*', y_train))
             assert_true(re.match(r'O*(?:BI*)O*', y_test))
+
+
+def test_kfold_repeated():
+    lengths = [4, 5, 3, 7, 2, 3, 2, 5, 3, 7, 2, 3, 2, 4]
+    n_samples = sum(lengths)
+
+    # TODO test for warning when shuffle=False
+
+    for n_folds in [2, 3, 4]:
+        for n_iter in [2, 3, 4]:
+            kfold = SequenceKFold(lengths, n_folds=n_folds, n_iter=n_iter,
+                                  shuffle=True, random_state=42)
+
+            assert_equal(len(kfold), n_folds * n_iter)
+
+            folds = list(kfold)
+            assert_equal(len(folds), n_folds * n_iter)
+
+            for train, test in folds:
+                assert_equal(len(train) + len(test), n_samples)
