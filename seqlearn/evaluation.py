@@ -88,9 +88,7 @@ class SequenceKFold(object):
         Random state/random seed for shuffling.
     """
 
-    def __init__(self, lengths, n_folds=3, indices=True,
-                 shuffle=False, random_state=None):
-        self.indices = indices
+    def __init__(self, lengths, n_folds=3, shuffle=False, random_state=None):
         self.lengths = lengths
         self.n_folds = n_folds
         self.random_state = random_state
@@ -122,9 +120,8 @@ class SequenceKFold(object):
                 test[start:end] = True
 
             train = ~test
-            if self.indices:
-                train = np.where(train)[0]
-                test = np.where(test)[0]
+            train = np.where(train)[0]
+            test = np.where(test)[0]
             yield train, test
 
     def __len__(self):
