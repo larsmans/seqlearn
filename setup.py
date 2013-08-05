@@ -1,8 +1,9 @@
+import sys
 from distutils.core import setup
 from distutils.extension import Extension
 from Cython.Distutils import build_ext
 
-setup(
+setup_options = dict(
     name="seqlearn",
     version="0.0.0",
     description="Sequence learning toolkit",
@@ -21,5 +22,18 @@ setup(
     ],
     cmdclass={'build_ext': build_ext},
     ext_modules=[Extension("seqlearn._decode.viterbi",
-                           ["seqlearn/_decode/viterbi.pyx"])]
+                           ["seqlearn/_decode/viterbi.pyx"])],
 )
+
+
+# For these actions, NumPy is not required.
+#
+# They are required to succeed without Numpy for example when
+# pip is used to install seqlearn when Numpy is not yet present in
+# the system.
+NO_NUMPY_ACTIONS = ('--help-commands', 'egg_info', '--version', 'clean')
+if not (len(sys.argv) >= 2 and ('--help' in sys.argv[1:] or sys.argv[1] in NO_NUMPY_ACTIONS)):
+    import numpy
+    setup_options['include_dirs'] = [numpy.get_include()]
+
+setup(**setup_options)
