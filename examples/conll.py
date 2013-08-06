@@ -8,7 +8,7 @@ from __future__ import print_function
 import sys
 
 from seqlearn.datasets import load_conll
-from seqlearn.evaluation import bio_f_score, SequenceKFold
+from seqlearn.evaluation import bio_f_score
 from seqlearn.perceptron import StructuredPerceptron
 from sklearn.metrics import accuracy_score
 
