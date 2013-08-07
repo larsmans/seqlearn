@@ -9,7 +9,7 @@ np.import_array()
 # TODO handle second-order transitions (trigrams)
 @cython.boundscheck(False)
 @cython.wraparound(False)
-def count_trans(np.ndarray[ndim=1, dtype=np.int32_t] y, int n_classes):
+def count_trans(np.ndarray[ndim=1, dtype=np.int32_t] y, n_classes):
     """Count transitions in a target vector.
 
     Parameters
@@ -22,7 +22,7 @@ def count_trans(np.ndarray[ndim=1, dtype=np.int32_t] y, int n_classes):
     cdef np.ndarray[ndim=2, dtype=np.int32_t, mode='c'] trans
     trans = np.zeros((n_classes, n_classes), dtype=np.int32)
 
-    for i in range(len(y) - 1):
+    for i in range(y.shape[0] - 1):
         trans[y[i], y[i + 1]] += 1
     return trans
 
