@@ -21,8 +21,10 @@ setup_options = dict(
         "Topic :: Text Processing",
     ],
     cmdclass={'build_ext': build_ext},
-    ext_modules=[Extension("seqlearn._decode.viterbi",
-                           ["seqlearn/_decode/viterbi.pyx"])],
+    ext_modules=[
+        Extension("seqlearn._decode.viterbi", ["seqlearn/_decode/viterbi.pyx"]),
+        Extension("seqlearn._utils_cython", ["seqlearn/_utils_cython.pyx"]),
+    ],
 )
 
 # For these actions, NumPy is not required. We want them to succeed without,
