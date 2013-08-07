@@ -5,6 +5,7 @@ import numpy as np
 from sklearn.utils import atleast2d_or_csr, check_random_state
 from sklearn.utils.extmath import logsumexp, safe_sparse_dot
 
+from seqlearn._utils_cython import count_trans as _count_trans
 
 # TODO handle second-order transitions (trigrams)
 def count_trans(y, n_classes):
@@ -16,10 +17,9 @@ def count_trans(y, n_classes):
     n_classes : int
         Number of distinct labels.
     """
-    trans = np.zeros((n_classes, n_classes), dtype=np.int32)
-    for i in xrange(len(y) - 1):
-        trans[y[i], y[i + 1]] += 1
-    return trans
+    y = np.asarray(y, dtype=np.int32)
+    return _count_trans(y, n_classes)
+
 
 
 def validate_lengths(n_samples, lengths):
