@@ -1,3 +1,5 @@
+# Copyright Lars Buitinck, Mikhail Korobov 2013.
+
 """Utils."""
 
 cimport cython
@@ -25,4 +27,3 @@ def count_trans(np.ndarray[ndim=1, dtype=np.int32_t] y, n_classes):
     for i in range(y.shape[0] - 1):
         trans[y[i], y[i + 1]] += 1
     return trans
-
