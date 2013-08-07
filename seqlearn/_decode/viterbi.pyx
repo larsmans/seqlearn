@@ -36,14 +36,14 @@ def viterbi(np.ndarray[ndim=2, dtype=np.float64_t] Score,
     applications in speech recognition. Proc. IEEE 77(2):257-286.
     """
 
-    cdef np.ndarray[ndim=2, dtype=np.int32_t, mode='c'] backp
-    cdef np.ndarray[ndim=1, dtype=np.int32_t, mode='c'] path
+    cdef np.ndarray[ndim=2, dtype=np.npy_intp, mode='c'] backp
+    cdef np.ndarray[ndim=1, dtype=np.npy_intp, mode='c'] path
     cdef np.float64_t candidate, maxval
     cdef np.npy_intp i, j, k, n_samples, n_states
 
     n_samples, n_states = Score.shape[0], Score.shape[1]
 
-    backp = np.empty((n_samples, n_states), dtype=np.int32)
+    backp = np.empty((n_samples, n_states), dtype=np.intp)
 
     for j in range(n_states):
         Score[0, j] += init[j]
@@ -66,7 +66,7 @@ def viterbi(np.ndarray[ndim=2, dtype=np.float64_t] Score,
         Score[n_samples - 1, j] += final[j]
 
     # Path backtracking
-    path = np.empty(n_samples, dtype=np.int32)
+    path = np.empty(n_samples, dtype=np.intp)
     path[n_samples - 1] = Score[n_samples - 1, :].argmax()
 
     for i in range(n_samples - 2, -1, -1):

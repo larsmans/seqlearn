@@ -17,6 +17,12 @@ def test_count_trans():
                        np.c_[np.r_[expected, np.zeros((1, 3))], np.zeros(4)])
 
 
+def test_count_trans_dtype():
+    y = np.asarray([1, 1, 2, 1, 1, 2, 0, 1, 0], dtype=np.int8)
+    # Strangely, Cython raises a ValueError instead of a TypeError.
+    assert_raises(ValueError, count_trans, y, 3)
+
+
 def test_validate_lengths():
     start, end = validate_lengths(50, [4, 5, 41])
     assert_array_equal(start, [0, 4, 9])

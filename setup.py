@@ -23,7 +23,7 @@ setup_options = dict(
     cmdclass={'build_ext': build_ext},
     ext_modules=[
         Extension("seqlearn._decode.viterbi", ["seqlearn/_decode/viterbi.pyx"]),
-        Extension("seqlearn._utils_cython", ["seqlearn/_utils_cython.pyx"]),
+        Extension("seqlearn._utils.ctrans", ["seqlearn/_utils/ctrans.pyx"]),
     ],
 )
 
