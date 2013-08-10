@@ -52,7 +52,7 @@ if __name__ == "__main__":
     X_test, y_test, lengths_test = load_conll(sys.argv[2], features)
     describe(X_test, lengths_test)
 
-    clf = StructuredPerceptron(verbose=True, max_iter=10)
+    clf = StructuredPerceptron(verbose=True, edge_features=True, max_iter=10)
     print("Training %s" % clf)
     clf.fit(X_train, y_train, lengths_train)
 

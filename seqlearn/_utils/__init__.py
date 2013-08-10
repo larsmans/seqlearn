@@ -6,6 +6,8 @@ from sklearn.utils import atleast2d_or_csr, check_random_state
 from sklearn.utils.extmath import logsumexp, safe_sparse_dot
 
 from seqlearn._utils.ctrans import count_trans
+from seqlearn._utils.transmatrix import (make_trans_matrix,
+                                         unroll_trans_matrix)
 
 
 def validate_lengths(n_samples, lengths):
