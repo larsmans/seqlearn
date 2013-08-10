@@ -7,6 +7,7 @@ from sklearn.utils.extmath import logsumexp, safe_sparse_dot
 
 from .ctrans import count_trans
 from .safeadd import safe_add
+from .transmatrix import make_trans_matrix, unroll_trans_matrix
 
 
 def validate_lengths(n_samples, lengths):

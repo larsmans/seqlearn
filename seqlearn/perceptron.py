@@ -9,7 +9,7 @@ from scipy.sparse import csr_matrix
 
 from .base import BaseSequenceClassifier
 from ._utils import (atleast2d_or_csr, check_random_state, count_trans,
-                     safe_add, safe_sparse_dot)
+                     make_trans_matrix, safe_add, safe_sparse_dot)
 
 
 class StructuredPerceptron(BaseSequenceClassifier):
@@ -22,6 +22,9 @@ class StructuredPerceptron(BaseSequenceClassifier):
     ----------
     decode : string, optional
         Decoding algorithm, either "bestfirst" or "viterbi" (default).
+
+    edge_features : boolean, optional
+        Whether to attach features to edges rather than nodes.
 
     lr_exponent : float, optional
         Exponent for inverse scaling learning rate. The effective learning
@@ -44,9 +47,10 @@ class StructuredPerceptron(BaseSequenceClassifier):
     models: Theory and experiments with perceptron algorithm. EMNLP.
 
     """
-    def __init__(self, decode="viterbi", lr_exponent=.1, max_iter=10,
-                 random_state=None, verbose=0):
+    def __init__(self, decode="viterbi", edge_features=False, lr_exponent=.1,
+                 max_iter=10, random_state=None, verbose=0):
         self.decode = decode
+        self.edge_features = edge_features
         self.lr_exponent = lr_exponent
         self.max_iter = max_iter
         self.random_state = random_state
@@ -77,17 +81,24 @@ class StructuredPerceptron(BaseSequenceClassifier):
         X = atleast2d_or_csr(X)
 
         classes, y = np.unique(y, return_inverse=True)
-        class_range = np.arange(len(classes))
-        Y_true = y.reshape(-1, 1) == class_range
+        n_classes = len(classes)
+
+        if self.edge_features:
+            Y_true = make_trans_matrix(y, n_classes)
+        else:
+            class_range = np.arange(n_classes)
+            Y_true = y.reshape(-1, 1) == class_range
 
         lengths = np.asarray(lengths)
         n_samples, n_features = X.shape
-        n_classes = Y_true.shape[1]
 
         end = np.cumsum(lengths)
         start = end - lengths
 
-        w = np.zeros((n_classes, n_features), order='F')
+        if self.edge_features:
+            w = np.zeros((n_classes ** 2, n_features), order='F')
+        else:
+            w = np.zeros((n_classes, n_features), order='F')
         w_trans = np.zeros((n_classes, n_classes))
         w_init = np.zeros(n_classes)
         w_final = np.zeros(n_classes)
@@ -124,8 +135,11 @@ class StructuredPerceptron(BaseSequenceClassifier):
                     sum_loss += loss
 
                     Y_t_i = Y_true[start[i]:end[i]]
-                    Y_pred = y_pred.reshape(-1, 1) == class_range
-                    Y_pred = Y_pred.astype(np.float64)
+                    if self.edge_features:
+                        Y_pred = make_trans_matrix(y_pred, n_classes)
+                    else:
+                        Y_pred = y_pred.reshape(-1, 1) == class_range
+                        Y_pred = Y_pred.astype(np.float64)
 
                     Y_diff = csr_matrix(Y_pred - Y_t_i)
                     Y_diff *= -lr
