@@ -24,6 +24,7 @@ setup_options = dict(
     ext_modules=[
         Extension("seqlearn._decode.viterbi", ["seqlearn/_decode/viterbi.pyx"]),
         Extension("seqlearn._utils.ctrans", ["seqlearn/_utils/ctrans.pyx"]),
+        Extension("seqlearn._utils.hashmat", ["seqlearn/_utils/hashmat.pyx"])
     ],
 )
 
