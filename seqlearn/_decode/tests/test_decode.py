@@ -24,10 +24,10 @@ def test_wikipedia_example():
     X = np.array([[1, 0, 0],
                   [0, 1, 0],
                   [0, 0, 1]])
-    Phi = np.dot(X, w.T)
+    score = np.dot(X, w.T)
 
-    assert_array_equal(bestfirst(Phi, trans, start, final), [0, 0, 1])
-    assert_array_equal(viterbi(Phi, trans, start, final), [0, 0, 1])
+    assert_array_equal(bestfirst(score, None, trans, start, final), [0, 0, 1])
+    assert_array_equal(viterbi(score, None, trans, start, final), [0, 0, 1])
 
 
 def test_dna():
@@ -54,13 +54,13 @@ def test_dna():
                   [0, 0, 0, 1],     # G
                   [0, 0, 1, 0],     # A
                   [0, 0, 1, 0]])    # A
-    Phi = np.dot(X, w.T)
+    score = np.dot(X, w.T)
 
     # HHHLLLLLL
     y_true = np.array([0, 0, 0, 1, 1, 1, 1, 1, 1])
 
-    assert_array_equal(viterbi(Phi, trans, start, final), y_true)
+    assert_array_equal(viterbi(score, None, trans, start, final), y_true)
 
     # For this problem, Viterbi actually is better than best-first.
-    bf = bestfirst(Phi, trans, start, final)
+    bf = bestfirst(score, None, trans, start, final)
     assert_greater(accuracy_score(y_true, bf), .75)

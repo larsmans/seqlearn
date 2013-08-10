@@ -6,11 +6,11 @@ from __future__ import division, print_function
 import sys
 
 import numpy as np
-from scipy.sparse import csr_matrix
+from scipy.sparse import csc_matrix
 
 from .base import BaseSequenceClassifier
 from ._utils import (atleast2d_or_csr, check_random_state, count_trans,
-                     safe_add, safe_sparse_dot)
+                     make_trans_matrix, safe_add, safe_sparse_dot)
 
 
 class StructuredPerceptron(BaseSequenceClassifier):
@@ -36,6 +36,11 @@ class StructuredPerceptron(BaseSequenceClassifier):
         Random state or seed used for shuffling sequences within each
         iteration.
 
+    trans_features : boolean, optional
+        Whether to attach features to transitions between labels as well as
+        individual labels. This requires more time, more memory and more
+        samples to train properly.
+
     verbose : integer, optional
         Verbosity level. Defaults to zero (quiet mode).
 
@@ -49,11 +54,12 @@ class StructuredPerceptron(BaseSequenceClassifier):
 
     """
     def __init__(self, decode="viterbi", lr_exponent=.1, max_iter=10,
-                 random_state=None, verbose=0):
+                 random_state=None, trans_features=False, verbose=0):
         self.decode = decode
         self.lr_exponent = lr_exponent
         self.max_iter = max_iter
         self.random_state = random_state
+        self.trans_features = trans_features
         self.verbose = verbose
 
     def fit(self, X, y, lengths):
@@ -81,25 +87,34 @@ class StructuredPerceptron(BaseSequenceClassifier):
         X = atleast2d_or_csr(X)
 
         classes, y = np.unique(y, return_inverse=True)
-        class_range = np.arange(len(classes))
+        n_classes = len(classes)
+
+        if self.trans_features:
+            trans_true = make_trans_matrix(y, n_classes)
+        class_range = np.arange(n_classes)
         Y_true = y.reshape(-1, 1) == class_range
 
         lengths = np.asarray(lengths)
         n_samples, n_features = X.shape
-        n_classes = Y_true.shape[1]
 
         end = np.cumsum(lengths)
         start = end - lengths
 
         w = np.zeros((n_classes, n_features), order='F')
-        w_trans = np.zeros((n_classes, n_classes))
-        w_init = np.zeros(n_classes)
-        w_final = np.zeros(n_classes)
+        b_trans = np.zeros((n_classes, n_classes))
+        b_init = np.zeros(n_classes)
+        b_final = np.zeros(n_classes)
 
         w_avg = np.zeros_like(w)
-        w_trans_avg = np.zeros_like(w_trans)
-        w_init_avg = np.zeros_like(w_init)
-        w_final_avg = np.zeros_like(w_final)
+        b_trans_avg = np.zeros_like(b_trans)
+        b_init_avg = np.zeros_like(b_init)
+        b_final_avg = np.zeros_like(b_final)
+
+        if self.trans_features:
+            w_trans = np.zeros((n_classes, n_classes, n_features), order='F')
+            w_t_flat = w_trans.reshape(-1, n_features)
+            w_trans_avg = np.zeros_like(w_trans)
+            w_t_avg_flat = w_trans_avg.reshape(-1, n_features)
 
         sequence_ids = np.arange(lengths.shape[0])
         rng = check_random_state(self.random_state)
@@ -120,8 +135,13 @@ class StructuredPerceptron(BaseSequenceClassifier):
 
             for i in sequence_ids:
                 X_i = X[start[i]:end[i]]
-                Score = safe_sparse_dot(X_i, w.T)
-                y_pred = decode(Score, w_trans, w_init, w_final)
+                score = safe_sparse_dot(X_i, w.T)
+                if self.trans_features:
+                    trans_score = safe_sparse_dot(X_i, w_t_flat.T)
+                    trans_score = trans_score.reshape(-1, n_classes, n_classes)
+                else:
+                    trans_score = None
+                y_pred = decode(score, trans_score, b_trans, b_init, b_final)
                 y_t_i = y[start[i]:end[i]]
                 loss = (y_pred != y_t_i).sum()
 
@@ -132,30 +152,44 @@ class StructuredPerceptron(BaseSequenceClassifier):
                     Y_pred = y_pred.reshape(-1, 1) == class_range
                     Y_pred = Y_pred.astype(np.float64)
 
-                    Y_diff = csr_matrix(Y_pred - Y_t_i)
+                    Y_diff = csc_matrix(Y_pred - Y_t_i)
                     Y_diff *= -lr
                     w_update = safe_sparse_dot(Y_diff.T, X_i)
 
+                    if self.trans_features:
+                        trans_pred = make_trans_matrix(y_pred, n_classes)
+
+                        trans_diff = trans_true[start[i]:end[i]].toarray()
+                        safe_add(trans_diff, -trans_pred)
+                        trans_diff = csc_matrix(trans_diff)
+                        trans_diff *= -lr
+
+                        w_trans_update = safe_sparse_dot(trans_diff.T, X_i)
+                        safe_add(w_t_flat, w_trans_update)
+
+                        w_trans_update *= avg_count
+                        safe_add(w_t_avg_flat, w_trans_update)
+
                     t_trans = count_trans(y_t_i, n_classes)
                     p_trans = count_trans(y_pred, n_classes)
-                    trans_update = lr * (p_trans - t_trans)
-                    init_update = lr * (Y_pred[0] - Y_true[start[i]])
-                    final_update = lr * (Y_pred[-1] - Y_true[end[i] - 1])
+                    b_trans_update = lr * (p_trans - t_trans)
+                    b_init_update = lr * (Y_pred[0] - Y_true[start[i]])
+                    b_final_update = lr * (Y_pred[-1] - Y_true[end[i] - 1])
 
                     safe_add(w, w_update)
-                    w_trans -= trans_update
-                    w_init -= init_update
-                    w_final -= final_update
+                    b_trans -= b_trans_update
+                    b_init -= b_init_update
+                    b_final -= b_final_update
 
                     w_update *= avg_count
-                    trans_update *= avg_count
-                    init_update *= avg_count
-                    final_update *= avg_count
+                    b_trans_update *= avg_count
+                    b_init_update *= avg_count
+                    b_final_update *= avg_count
 
                     safe_add(w_avg, w_update)
-                    w_trans_avg -= trans_update
-                    w_init -= init_update
-                    w_final -= final_update
+                    b_trans_avg -= b_trans_update
+                    b_init_avg -= b_init_update
+                    b_final_avg -= b_final_update
 
             if self.verbose:
                 # XXX the loss reported is that for w, but the one for
@@ -165,14 +199,18 @@ class StructuredPerceptron(BaseSequenceClassifier):
             avg_count += 1.
 
         w -= w_avg / avg_count
-        w_init -= w_init_avg / avg_count
-        w_trans -= w_trans_avg / avg_count
-        w_final -= w_final_avg / avg_count
+        if self.trans_features:
+            w_trans -= w_trans_avg / avg_count
+        b_init -= b_init_avg / avg_count
+        b_trans -= b_trans_avg / avg_count
+        b_final -= b_final_avg / avg_count
 
         self.coef_ = w
-        self.coef_init_ = w_init
-        self.coef_trans_ = w_trans
-        self.coef_final_ = w_final
+        if self.trans_features:
+            self.coef_trans_ = w_trans
+        self.intercept_init_ = b_init
+        self.intercept_trans_ = b_trans
+        self.intercept_final_ = b_final
 
         self.classes_ = classes
 

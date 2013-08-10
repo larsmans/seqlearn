@@ -33,17 +33,26 @@ class BaseSequenceClassifier(BaseEstimator, ClassifierMixin):
             Labels per sample in X.
         """
         X = atleast2d_or_csr(X)
-        Scores = safe_sparse_dot(X, self.coef_.T)
-        decode = DECODERS[self.decode]
+        scores = safe_sparse_dot(X, self.coef_.T)
+        if hasattr(self, "coef_trans_"):
+            n_classes = len(self.classes_)
+            coef_t = self.coef_trans_.T.reshape(-1, self.coef_trans_.shape[-1])
+            trans_scores = safe_sparse_dot(X, coef_t.T)
+            trans_scores = trans_scores.reshape(-1, n_classes, n_classes)
+        else:
+            trans_scores = None
+
+        decode = self._get_decoder()
 
         if lengths is None:
-            y = decode(Scores, self.coef_trans_,
-                       self.coef_init_, self.coef_final_)
+            y = decode(scores, trans_scores, self.intercept_trans_,
+                       self.intercept_init_, self.intercept_final_)
         else:
             start, end = validate_lengths(X.shape[0], lengths)
 
-            y = [decode(Scores[start[i]:end[i]], self.coef_trans_,
-                        self.coef_init_, self.coef_final_)
+            y = [decode(scores[start[i]:end[i]], trans_scores,
+                        self.intercept_trans_, self.intercept_init_,
+                        self.intercept_final_)
                  for i in xrange(len(lengths))]
             y = np.hstack(y)
 

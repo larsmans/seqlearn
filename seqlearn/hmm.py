@@ -69,9 +69,9 @@ class MultinomialHMM(BaseSequenceClassifier):
         trans_prob -= logsumexp(trans_prob, axis=0)
 
         self.coef_ = feature_prob
-        self.coef_init_ = init_prob
-        self.coef_final_ = final_prob
-        self.coef_trans_ = trans_prob
+        self.intercept_init_ = init_prob
+        self.intercept_final_ = final_prob
+        self.intercept_trans_ = trans_prob
 
         self.classes_ = classes
 

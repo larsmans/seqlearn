@@ -34,9 +34,9 @@ def test_hmm():
     assert_array_almost_equal(np.ones(n_features),
                               np.exp(clf.coef_).sum(axis=0))
     assert_array_almost_equal(np.ones(n_classes),
-                              np.exp(clf.coef_trans_).sum(axis=0))
-    assert_array_almost_equal(1., np.exp(clf.coef_final_).sum())
-    assert_array_almost_equal(1., np.exp(clf.coef_init_).sum())
+                              np.exp(clf.intercept_trans_).sum(axis=0))
+    assert_array_almost_equal(1., np.exp(clf.intercept_final_).sum())
+    assert_array_almost_equal(1., np.exp(clf.intercept_init_).sum())
 
 
 def test_hmm_validation():
