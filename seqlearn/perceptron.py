@@ -2,6 +2,8 @@
 
 from __future__ import division, print_function
 
+import sys
+
 import numpy as np
 
 from .base import BaseSequenceClassifier
@@ -100,7 +102,8 @@ class StructuredPerceptron(BaseSequenceClassifier):
 
         for it in xrange(1, self.max_iter + 1):
             if self.verbose:
-                print("Iteration ", it)
+                print("Iteration ", it, end="... ")
+                sys.stdout.flush()
 
             rng.shuffle(sequence_ids)
 
@@ -138,7 +141,7 @@ class StructuredPerceptron(BaseSequenceClassifier):
             if self.verbose:
                 # XXX the loss reported is that for w, but the one for
                 # w_avg is what matters for early stopping.
-                print("Loss = {0:.4f}".format(loss / n_samples))
+                print("loss = {0:.4f}".format(sum_loss / n_samples))
 
         self.coef_ = w_avg
         self.coef_ /= it * len(lengths)
