@@ -9,7 +9,8 @@ from scipy.sparse import csr_matrix
 
 from .base import BaseSequenceClassifier
 from ._utils import (atleast2d_or_csr, check_random_state, count_trans,
-                     safe_add, safe_sparse_dot)
+                     safe_sparse_dot)
+from ._utils.dokmatrix import DOKMatrix
 
 
 class StructuredPerceptron(BaseSequenceClassifier):
@@ -73,7 +74,7 @@ class StructuredPerceptron(BaseSequenceClassifier):
 
         decode = self._get_decoder()
 
-        X = atleast2d_or_csr(X)
+        X = _tocsr(X)
 
         classes, y = np.unique(y, return_inverse=True)
         class_range = np.arange(len(classes))
@@ -86,12 +87,12 @@ class StructuredPerceptron(BaseSequenceClassifier):
         end = np.cumsum(lengths)
         start = end - lengths
 
-        w = np.zeros((n_classes, n_features), order='F')
+        w = DOKMatrix((n_features, n_classes)).T
         w_trans = np.zeros((n_classes, n_classes))
         w_init = np.zeros(n_classes)
         w_final = np.zeros(n_classes)
 
-        w_avg = np.zeros_like(w)
+        w_avg = DOKMatrix((n_features, n_classes)).T
         w_trans_avg = np.zeros_like(w_trans)
         w_init_avg = np.zeros_like(w_init)
         w_final_avg = np.zeros_like(w_final)
@@ -125,9 +126,8 @@ class StructuredPerceptron(BaseSequenceClassifier):
                     Y_pred = Y_pred.astype(np.float64)
 
                     Y_diff = csr_matrix(Y_pred - Y_t_i)
-                    Y_diff *= -lr
-                    D = safe_sparse_dot(Y_diff.T, X_i)
-                    safe_add(w, D)
+                    update = safe_sparse_dot(Y_diff.T, X_i)
+                    w.add(update, -lr)
 
                     t_trans = count_trans(y_t_i, n_classes)
                     p_trans = count_trans(y_pred, n_classes)
@@ -157,3 +157,9 @@ class StructuredPerceptron(BaseSequenceClassifier):
         self.classes_ = classes
 
         return self
+
+
+def _tocsr(X):
+    if hasattr(X, "tocsr") and X.dtype == np.float64:
+        return X.tocsr()
+    return csr_matrix(X, dtype=np.float64)

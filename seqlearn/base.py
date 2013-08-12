@@ -32,7 +32,7 @@ class BaseSequenceClassifier(BaseEstimator, ClassifierMixin):
         y : array, shape (n_samples,)
             Labels per sample in X.
         """
-        X = atleast2d_or_csr(X)
+        X = atleast2d_or_csr(X, dtype=np.float64)
         Scores = safe_sparse_dot(X, self.coef_.T)
         decode = DECODERS[self.decode]
 
