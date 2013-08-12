@@ -10,7 +10,6 @@ from sklearn.utils.extmath import logsumexp
 
 from .ctrans import count_trans
 from .dokmatrix import DOKMatrix, dot_csr_dok, dot_dense_dok
-from .safeadd import safe_add
 
 
 def safe_sparse_dot(A, B, dense_output=False):
