@@ -5,10 +5,11 @@ from __future__ import division, print_function
 import sys
 
 import numpy as np
+from scipy.sparse import csr_matrix
 
 from .base import BaseSequenceClassifier
 from ._utils import (atleast2d_or_csr, check_random_state, count_trans,
-                     safe_sparse_dot)
+                     safe_add, safe_sparse_dot)
 
 
 class StructuredPerceptron(BaseSequenceClassifier):
@@ -123,9 +124,10 @@ class StructuredPerceptron(BaseSequenceClassifier):
                     Y_pred = y_pred.reshape(-1, 1) == class_range
                     Y_pred = Y_pred.astype(np.float64)
 
-                    Y_diff = Y_pred - Y_t_i
-                    Y_diff *= lr
-                    w -= safe_sparse_dot(Y_diff.T, X_i)
+                    Y_diff = csr_matrix(Y_pred - Y_t_i)
+                    Y_diff *= -lr
+                    D = safe_sparse_dot(Y_diff.T, X_i)
+                    safe_add(w, D)
 
                     t_trans = count_trans(y_t_i, n_classes)
                     p_trans = count_trans(y_pred, n_classes)

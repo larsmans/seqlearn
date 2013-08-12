@@ -5,7 +5,8 @@ import numpy as np
 from sklearn.utils import atleast2d_or_csr, check_random_state
 from sklearn.utils.extmath import logsumexp, safe_sparse_dot
 
-from seqlearn._utils.ctrans import count_trans
+from .ctrans import count_trans
+from .safeadd import safe_add
 
 
 def validate_lengths(n_samples, lengths):
