@@ -1,7 +1,11 @@
 from distutils.core import setup
 from distutils.extension import Extension
+from Cython.Build import cythonize
 from Cython.Distutils import build_ext
 import sys
+
+dokmat_ext = cythonize("seqlearn/_utils/dokmatrix.pyx")
+dokmat_ext[0].extra_compile_args = ["-std=c++0x"]
 
 setup_options = dict(
     name="seqlearn",
@@ -25,7 +29,7 @@ setup_options = dict(
         Extension("seqlearn._decode.viterbi", ["seqlearn/_decode/viterbi.pyx"]),
         Extension("seqlearn._utils.ctrans", ["seqlearn/_utils/ctrans.pyx"]),
         Extension("seqlearn._utils.safeadd", ["seqlearn/_utils/safeadd.pyx"]),
-    ],
+    ] + dokmat_ext
 )
 
 # For these actions, NumPy is not required. We want them to succeed without,
