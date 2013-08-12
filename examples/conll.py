@@ -57,5 +57,5 @@ if __name__ == "__main__":
     clf.fit(X_train, y_train, lengths_train)
 
     y_pred = clf.predict(X_test, lengths_test)
-    print("Accuracy: %.3f" % 100 * accuracy_score(y_test, y_pred))
-    print("CoNLL F1: %.3f" % 100 * bio_f_score(y_test, y_pred))
+    print("Accuracy: %.3f" % (100 * accuracy_score(y_test, y_pred)))
+    print("CoNLL F1: %.3f" % (100 * bio_f_score(y_test, y_pred)))
