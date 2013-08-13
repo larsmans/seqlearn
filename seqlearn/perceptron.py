@@ -16,15 +16,16 @@ class StructuredPerceptron(BaseSequenceClassifier):
     """Structured perceptron for sequence classification.
 
     This implements the averaged structured perceptron algorithm of Collins,
-    with the addition of a learning rate.
+    with the addition of an adaptive learning rate.
 
     Parameters
     ----------
     decode : string, optional
         Decoding algorithm, either "bestfirst" or "viterbi" (default).
 
-    learning_rate : float, optional
-        Learning rate.
+    lr_exponent : float, optional
+        Exponent for inverse scaling learning rate. The effective learning
+        rate is 1. / (t ** lr_exponent), where t is the iteration number.
 
     max_iter : integer, optional
         Number of iterations (aka. epochs). Each sequence is visited once in
@@ -43,10 +44,10 @@ class StructuredPerceptron(BaseSequenceClassifier):
     models: Theory and experiments with perceptron algorithm. EMNLP.
 
     """
-    def __init__(self, decode="viterbi", learning_rate=.1, max_iter=10,
+    def __init__(self, decode="viterbi", lr_exponent=.1, max_iter=10,
                  random_state=None, verbose=0):
         self.decode = decode
-        self.learning_rate = learning_rate
+        self.lr_exponent = lr_exponent
         self.max_iter = max_iter
         self.random_state = random_state
         self.verbose = verbose
@@ -96,14 +97,16 @@ class StructuredPerceptron(BaseSequenceClassifier):
         w_init_avg = np.zeros_like(w_init)
         w_final_avg = np.zeros_like(w_final)
 
-        lr = self.learning_rate
-
         sequence_ids = np.arange(lengths.shape[0])
         rng = check_random_state(self.random_state)
 
+        lr_exponent = self.lr_exponent
+
         for it in xrange(1, self.max_iter + 1):
+            lr = 1. / (it ** lr_exponent)
+
             if self.verbose:
-                print("Iteration ", it, end="... ")
+                print("Iteration {0:2d}".format(it), end="... ")
                 sys.stdout.flush()
 
             rng.shuffle(sequence_ids)
