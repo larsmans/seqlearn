@@ -11,7 +11,7 @@ setup_options = dict(
     maintainer_email="L.J.Buitinck@uva.nl",
     license="MIT",
     url="https://github.com/larsmans/seqlearn",
-    packages=["seqlearn"],
+    packages=["seqlearn", "seqlearn._utils", "seqlearn._decode", "seqlearn.datasets"],
     classifiers=[
         "Intended Audience :: Developers",
         "Intended Audience :: Science/Research",
