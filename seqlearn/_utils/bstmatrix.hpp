@@ -3,12 +3,17 @@
 #include <map>
 #include <utility>
 
+#include "FSBAllocator.hh"
+
 namespace seqlearn {
     /*
      * BST backing a sparse matrix of doubles.
      */
     class BSTMatrix {
-        std::map<std::pair<size_t, size_t>, double> tree;
+        typedef std::pair<size_t, size_t> KeyT;
+        //std::map<std::pair<size_t, size_t>, double> tree;
+        std::map<KeyT, double, std::less<KeyT>,
+                 FSBAllocator<std::pair<KeyT const, double>>> tree;
 
       public:
         // Add factor * B to this.
