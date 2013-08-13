@@ -1,4 +1,5 @@
 # Copyright 2013 Lars Buitinck
+# encoding: utf-8
 
 from __future__ import division, print_function
 
@@ -15,8 +16,8 @@ from ._utils import (atleast2d_or_csr, check_random_state, count_trans,
 class StructuredPerceptron(BaseSequenceClassifier):
     """Structured perceptron for sequence classification.
 
-    This implements the averaged structured perceptron algorithm of Collins,
-    with the addition of an adaptive learning rate.
+    This implements the averaged structured perceptron algorithm of Collins
+    and Daumé, with the addition of an adaptive learning rate.
 
     Parameters
     ----------
@@ -42,6 +43,9 @@ class StructuredPerceptron(BaseSequenceClassifier):
     ----------
     M. Collins (2002). Discriminative training methods for hidden Markov
     models: Theory and experiments with perceptron algorithm. EMNLP.
+
+    Hal Daumé III (2006). Practical Structured Learning Techniques for
+    Natural Language Processing. Ph.D. thesis, U. Southern California.
 
     """
     def __init__(self, decode="viterbi", lr_exponent=.1, max_iter=10,
@@ -100,6 +104,7 @@ class StructuredPerceptron(BaseSequenceClassifier):
         sequence_ids = np.arange(lengths.shape[0])
         rng = check_random_state(self.random_state)
 
+        avg_count = 1.
         lr_exponent = self.lr_exponent
 
         for it in xrange(1, self.max_iter + 1):
@@ -129,33 +134,45 @@ class StructuredPerceptron(BaseSequenceClassifier):
 
                     Y_diff = csr_matrix(Y_pred - Y_t_i)
                     Y_diff *= -lr
-                    D = safe_sparse_dot(Y_diff.T, X_i)
-                    safe_add(w, D)
+                    w_update = safe_sparse_dot(Y_diff.T, X_i)
 
                     t_trans = count_trans(y_t_i, n_classes)
                     p_trans = count_trans(y_pred, n_classes)
-                    w_trans -= lr * (p_trans - t_trans)
-                    w_init -= lr * (Y_pred[0] - Y_true[start[i]])
-                    w_final -= lr * (Y_pred[-1] - Y_true[end[i] - 1])
+                    trans_update = lr * (p_trans - t_trans)
+                    init_update = lr * (Y_pred[0] - Y_true[start[i]])
+                    final_update = lr * (Y_pred[-1] - Y_true[end[i] - 1])
 
-                w_avg += w
-                w_trans_avg += w_trans
-                w_init_avg += w_init
-                w_final_avg += w_final
+                    safe_add(w, w_update)
+                    w_trans -= trans_update
+                    w_init -= init_update
+                    w_final -= final_update
+
+                    w_update *= avg_count
+                    trans_update *= avg_count
+                    init_update *= avg_count
+                    final_update *= avg_count
+
+                    safe_add(w_avg, w_update)
+                    w_trans_avg -= trans_update
+                    w_init -= init_update
+                    w_final -= final_update
 
             if self.verbose:
                 # XXX the loss reported is that for w, but the one for
                 # w_avg is what matters for early stopping.
                 print("loss = {0:.4f}".format(sum_loss / n_samples))
 
-        self.coef_ = w_avg
-        self.coef_ /= it * len(lengths)
-        self.coef_init_ = w_init_avg
-        self.coef_init_ /= it * len(lengths)
-        self.coef_trans_ = w_trans_avg
-        self.coef_trans_ /= it * len(lengths)
-        self.coef_final_ = w_final_avg
-        self.coef_final_ /= it * len(lengths)
+            avg_count += 1.
+
+        w -= w_avg / avg_count
+        w_init -= w_init_avg / avg_count
+        w_trans -= w_trans_avg / avg_count
+        w_final -= w_final_avg / avg_count
+
+        self.coef_ = w
+        self.coef_init_ = w_init
+        self.coef_trans_ = w_trans
+        self.coef_final_ = w_final
 
         self.classes_ = classes
 
