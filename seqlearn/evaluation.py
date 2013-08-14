@@ -71,6 +71,22 @@ def bio_f_score(y_true, y_pred):
     return 2. * precision * recall / (precision + recall)
 
 
+def whole_sequence_accuracy(y_true, y_pred, lengths):
+    """Accuracy measured on whole sequences.
+
+    Returns the fraction of sequences in y_true that occur in y_pred without a
+    single error.
+    """
+    lengths = np.asarray(lengths)
+    end = np.cumsum(lengths)
+    start = end - lengths
+    bounds = np.vstack([start, end]).T
+
+    errors = sum(1. for i, j in bounds
+                 if np.any(y_true[i:j] != y_pred[i:j]))
+    return 1 - errors / len(lengths)
+
+
 class SequenceKFold(object):
     """Sequence-aware (repeated) k-fold CV splitter.
 

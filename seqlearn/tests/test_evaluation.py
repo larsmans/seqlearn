@@ -4,7 +4,8 @@ from numpy.testing import assert_array_equal
 import numpy as np
 import re
 
-from seqlearn.evaluation import bio_f_score, SequenceKFold
+from seqlearn.evaluation import (bio_f_score, SequenceKFold,
+                                 whole_sequence_accuracy)
 
 
 def test_bio_f_score():
@@ -24,6 +25,13 @@ def test_bio_f_score():
         y_true = list(y_true)
         y_pred = list(y_pred)
         assert_equal(score, bio_f_score(y_true, y_pred))
+
+
+def test_accuracy():
+    y_true = ["0111001", "1001", "00011111", "010101011", "1110"]
+    y_pred = ["0010010", "1001", "00011110", "010101011", "1110"]
+    assert_equal(.6, whole_sequence_accuracy(''.join(y_true), ''.join(y_pred),
+                                             map(len, y_true)))
 
 
 def test_kfold():
