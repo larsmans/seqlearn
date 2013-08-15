@@ -22,6 +22,8 @@ setup_options = dict(
     ],
     cmdclass={'build_ext': build_ext},
     ext_modules=[
+        Extension("seqlearn._decode.bestfirst",
+                  ["seqlearn/_decode/bestfirst.pyx"]),
         Extension("seqlearn._decode.viterbi", ["seqlearn/_decode/viterbi.pyx"]),
         Extension("seqlearn._utils.ctrans", ["seqlearn/_utils/ctrans.pyx"]),
         Extension("seqlearn._utils.safeadd", ["seqlearn/_utils/safeadd.pyx"]),

@@ -30,6 +30,9 @@ def test_hmm():
     assert_array_equal(clf.classes_, ["Adj", "DT", "IN", "N", "V"])
     assert_array_equal(clf.predict(X), y)
 
+    clf.set_params(decode="bestfirst")
+    assert_array_equal(clf.predict(X), y)
+
     n_classes = len(clf.classes_)
     assert_array_almost_equal(np.ones(n_features),
                               np.exp(clf.coef_).sum(axis=0))
