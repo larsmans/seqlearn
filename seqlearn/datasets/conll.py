@@ -37,16 +37,11 @@ def load_conll(f, features, n_features=(2 ** 16), split=False):
 
 def _conll_sequences(f, features, labels, lengths, split):
     # Divide input into blocks of empty and non-empty lines.
-    # Make sure first and last blocks have empty lines.
-    lines = chain([""], imap(str.strip, f), [""])
-    groups = groupby(lines, bool)
-    next(groups)
+    lines = imap(str.strip, f)
+    groups = (grp for nonempty, grp in groupby(lines, bool) if nonempty)
 
-    for nonempty, group in groups:
-        assert nonempty
+    for group in groups:
         group = list(group)
-
-        next(groups)    # consume empty lines
 
         obs, lbl = zip(*(ln.rsplit(None, 1) for ln in group))
         if split:
