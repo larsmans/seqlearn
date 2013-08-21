@@ -23,6 +23,16 @@ def load_conll(f, features, n_features=(2 ** 16), split=False):
         Whether to split lines on whitespace beyond what is needed to parse
         out the labels. This is useful for CoNLL files that have extra columns
         containing information like part of speech tags.
+
+    Returns
+    -------
+    X : scipy.sparse matrix, shape (n_samples, n_features)
+        Samples (feature vectors), as a single sparse matrix.
+    y : np.ndarray, dtype np.string, shape n_samples
+        Per-sample labels.
+    lengths : np.ndarray, dtype np.int32, shape n_sequences
+        Lengths of sequences within (X, y). The sum of these is equal to
+        n_samples.
     """
     fh = FeatureHasher(n_features=n_features, input_type="string")
     labels = []
