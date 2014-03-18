@@ -11,7 +11,7 @@ class MultinomialHMM(BaseSequenceClassifier):
     ----------
     decode : string, optional
         Decoding algorithm, either "bestfirst" or "viterbi" (default).
-        Best-first decoding is also called posterior decoding the HMM
+        Best-first decoding is also called posterior decoding in the HMM
         literature.
 
     alpha : float
