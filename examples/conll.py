@@ -22,15 +22,15 @@ def features(sentence, i):
 
     word = sentence[i]
 
-    yield "word:{}".format(word.lower())
+    yield "word:{}" + word.lower()
 
     if word[0].isupper():
         yield "CAP"
 
     if i > 0:
-        yield "word-1:{}".format(sentence[i - 1].lower())
+        yield "word-1:{}" + sentence[i - 1].lower()
     if i + 1 < len(sentence):
-        yield "word+1:{}".format(sentence[i + 1].lower())
+        yield "word+1:{}" + sentence[i + 1].lower()
 
 
 def describe(X, lengths):
