@@ -10,9 +10,18 @@ from sklearn.feature_extraction import FeatureHasher
 def load_conll(f, features, n_features=(2 ** 16), split=False):
     """Load CoNLL file, extract features on the tokens and vectorize them.
 
-    This uses the ``sklearn.feature_extraction.FeatureHasher`` (the "hashing
-    trick") to map symbolic input feature names to columns. It does not
-    remember the actual input feature names.
+    The ConLL file format is a line-oriented text format that describes
+    sequences in a space-separated format, separating the sequences with
+    blank lines. Typically, the last space-separated part is a label.
+
+    Since the tab-separated parts are usually tokens (and maybe things like
+    part-of-speech tags) rather than feature vectors, a function must be
+    supplied that does the actual feature extraction. This function has access
+    to the entire sequence, so that it can extract context features.
+
+    A ``sklearn.feature_extraction.FeatureHasher`` (the "hashing trick")
+    is used to map symbolic input feature names to columns, so this function
+    dos not remember the actual input feature names.
 
     Parameters
     ----------

@@ -72,7 +72,7 @@ def bio_f_score(y_true, y_pred):
 
 
 def whole_sequence_accuracy(y_true, y_pred, lengths):
-    """Accuracy measured on whole sequences.
+    """Average accuracy measured on whole sequences.
 
     Returns the fraction of sequences in y_true that occur in y_pred without a
     single error.
@@ -118,10 +118,11 @@ class SequenceKFold(object):
 
     Returns
     -------
-    A generator yielding (train_indices, test_indices) pairs when
-    yield_lengths is false, or tuples
-    (train_indices, train_lengths, test_indices, test_lengths)
-    when yield_lengths is true.
+    folds : iterable
+        A generator yielding (train_indices, test_indices) pairs when
+        yield_lengths is false, or tuples
+        (train_indices, train_lengths, test_indices, test_lengths)
+        when yield_lengths is true.
     """
 
     def __init__(self, lengths, n_folds=3, n_iter=1, shuffle=False,

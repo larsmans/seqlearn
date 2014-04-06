@@ -1,0 +1,16 @@
+language: python
+python:
+  # Only 2.7 to prevent having to install NumPy and SciPy from source.
+  - "2.7"
+
+virtualenv:
+  system_site_packages: true
+
+install:
+  - sudo apt-get update
+  - sudo apt-get install cython python-numpy python-scipy python-sklearn
+  - pip install .
+  #- pip install -r requirements.txt
+
+script:
+  - nosetests --exe seqlearn
