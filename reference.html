@@ -1,0 +1,416 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>API reference &mdash; seqlearn 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="seqlearn 0.1 documentation" href="index.html" />
+    <link rel="prev" title="seqlearn: sequence classification library for Python" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="np-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="seqlearn: sequence classification library for Python"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">seqlearn 0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="api-reference">
+<h1>API reference<a class="headerlink" href="#api-reference" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-seqlearn.datasets">
+<span id="dataset-loading-utilities"></span><h2>Dataset loading utilities<a class="headerlink" href="#module-seqlearn.datasets" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="seqlearn.datasets.load_conll">
+<tt class="descclassname">seqlearn.datasets.</tt><tt class="descname">load_conll</tt><big>(</big><em>f</em>, <em>features</em>, <em>n_features=65536</em>, <em>split=False</em><big>)</big><a class="headerlink" href="#seqlearn.datasets.load_conll" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load CoNLL file, extract features on the tokens and vectorize them.</p>
+<p>This uses the <tt class="docutils literal"><span class="pre">sklearn.feature_extraction.FeatureHasher</span></tt> (the &#8220;hashing
+trick&#8221;) to map symbolic input feature names to columns. It does not
+remember the actual input feature names.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>f</strong> : {string, file-like}</p>
+<blockquote>
+<div><p>Input file.</p>
+</div></blockquote>
+<p><strong>features</strong> : callable</p>
+<blockquote>
+<div><p>Feature extraction function. Must take a list of tokens (see below)
+and an index into this list.</p>
+</div></blockquote>
+<p><strong>n_features</strong> : integer, optional</p>
+<blockquote>
+<div><p>Number of columns in the output.</p>
+</div></blockquote>
+<p><strong>split</strong> : boolean, default=False</p>
+<blockquote>
+<div><p>Whether to split lines on whitespace beyond what is needed to parse
+out the labels. This is useful for CoNLL files that have extra columns
+containing information like part of speech tags.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>X</strong> : scipy.sparse matrix, shape (n_samples, n_features)</p>
+<blockquote>
+<div><p>Samples (feature vectors), as a single sparse matrix.</p>
+</div></blockquote>
+<p><strong>y</strong> : np.ndarray, dtype np.string, shape n_samples</p>
+<blockquote>
+<div><p>Per-sample labels.</p>
+</div></blockquote>
+<p><strong>lengths</strong> : np.ndarray, dtype np.int32, shape n_sequences</p>
+<blockquote class="last">
+<div><p>Lengths of sequences within (X, y). The sum of these is equal to
+n_samples.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-seqlearn.evaluation">
+<span id="evaluation-and-model-selection"></span><h2>Evaluation and model selection<a class="headerlink" href="#module-seqlearn.evaluation" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="seqlearn.evaluation.SequenceKFold">
+<em class="property">class </em><tt class="descclassname">seqlearn.evaluation.</tt><tt class="descname">SequenceKFold</tt><big>(</big><em>lengths</em>, <em>n_folds=3</em>, <em>n_iter=1</em>, <em>shuffle=False</em>, <em>random_state=None</em>, <em>yield_lengths=True</em><big>)</big><a class="headerlink" href="#seqlearn.evaluation.SequenceKFold" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sequence-aware (repeated) k-fold CV splitter.</p>
+<p>Uses a greedy heuristic to partition input sequences into sets with roughly
+equal numbers of samples, while keeping the sequences intact.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>lengths</strong> : array-like of integers, shape (n_samples,)</p>
+<blockquote>
+<div><p>Lengths of sequences, in the order in which they appear in the dataset.</p>
+</div></blockquote>
+<p><strong>n_folds</strong> : int, optional</p>
+<blockquote>
+<div><p>Number of folds.</p>
+</div></blockquote>
+<p><strong>n_iter</strong> : int, optional</p>
+<blockquote>
+<div><p>Number of iterations of repeated k-fold splitting. The default value
+is 1, meaning a single k-fold split; values &gt;1 give repeated k-fold
+with shuffling (see below).</p>
+</div></blockquote>
+<p><strong>shuffle</strong> : boolean, optional</p>
+<blockquote>
+<div><p>Whether to shuffle sequences.</p>
+</div></blockquote>
+<p><strong>random_state</strong> : {np.random.RandomState, integer}, optional</p>
+<blockquote>
+<div><p>Random state/random seed for shuffling.</p>
+</div></blockquote>
+<p><strong>yield_lengths</strong> : boolean, optional</p>
+<blockquote>
+<div><p>Whether to yield lengths in addition to indices/masks for both
+training and test sets.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>A generator yielding (train_indices, test_indices) pairs when</strong> :</p>
+<p><strong>yield_lengths is false, or tuples</strong> :</p>
+<p><strong>(train_indices, train_lengths, test_indices, test_lengths)</strong> :</p>
+<p class="last"><strong>when yield_lengths is true.</strong> :</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="seqlearn.evaluation.bio_f_score">
+<tt class="descclassname">seqlearn.evaluation.</tt><tt class="descname">bio_f_score</tt><big>(</big><em>y_true</em>, <em>y_pred</em><big>)</big><a class="headerlink" href="#seqlearn.evaluation.bio_f_score" title="Permalink to this definition">¶</a></dt>
+<dd><p>F-score for BIO-tagging scheme, as used by CoNLL.</p>
+<p>This F-score variant is used for evaluating named-entity recognition and
+related problems, where the goal is to predict segments of interest within
+sequences and mark these as a &#8220;B&#8221; (begin) tag followed by zero or more &#8220;I&#8221;
+(inside) tags. A true positive is then defined as a BI* segment in both
+y_true and y_pred, with false positives and false negatives defined
+similarly.</p>
+<p>Support for tags schemes with classes (e.g. &#8220;B-NP&#8221;) are limited: reported
+scores may be too high for inconsistent labelings.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>y_true</strong> : array-like of strings, shape (n_samples,)</p>
+<blockquote>
+<div><p>Ground truth labeling.</p>
+</div></blockquote>
+<p><strong>y_pred</strong> : array-like of strings, shape (n_samples,)</p>
+<blockquote>
+<div><p>Sequence classifier&#8217;s predictions.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>f</strong> : float</p>
+<blockquote class="last">
+<div><p>F-score.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="seqlearn.evaluation.whole_sequence_accuracy">
+<tt class="descclassname">seqlearn.evaluation.</tt><tt class="descname">whole_sequence_accuracy</tt><big>(</big><em>y_true</em>, <em>y_pred</em>, <em>lengths</em><big>)</big><a class="headerlink" href="#seqlearn.evaluation.whole_sequence_accuracy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Accuracy measured on whole sequences.</p>
+<p>Returns the fraction of sequences in y_true that occur in y_pred without a
+single error.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-seqlearn.hmm">
+<span id="sequence-classifiers"></span><h2>Sequence classifiers<a class="headerlink" href="#module-seqlearn.hmm" title="Permalink to this headline">¶</a></h2>
+<p>Hidden Markov models (HMMs) with supervised training.</p>
+<dl class="class">
+<dt id="seqlearn.hmm.MultinomialHMM">
+<em class="property">class </em><tt class="descclassname">seqlearn.hmm.</tt><tt class="descname">MultinomialHMM</tt><big>(</big><em>decode='viterbi'</em>, <em>alpha=0.01</em><big>)</big><a class="headerlink" href="#seqlearn.hmm.MultinomialHMM" title="Permalink to this definition">¶</a></dt>
+<dd><p>First-order hidden Markov model with multinomial event model.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>decode</strong> : string, optional</p>
+<blockquote>
+<div><p>Decoding algorithm, either &#8220;bestfirst&#8221; or &#8220;viterbi&#8221; (default).
+Best-first decoding is also called posterior decoding in the HMM
+literature.</p>
+</div></blockquote>
+<p><strong>alpha</strong> : float</p>
+<blockquote class="last">
+<div><p>Lidstone (additive) smoothing parameter.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<dl class="method">
+<dt id="seqlearn.hmm.MultinomialHMM.fit">
+<tt class="descname">fit</tt><big>(</big><em>X</em>, <em>y</em>, <em>lengths</em><big>)</big><a class="headerlink" href="#seqlearn.hmm.MultinomialHMM.fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit HMM model to data.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>X</strong> : {array-like, sparse matrix}, shape (n_samples, n_features)</p>
+<blockquote>
+<div><p>Feature matrix of individual samples.</p>
+</div></blockquote>
+<p><strong>y</strong> : array-like, shape (n_samples,)</p>
+<blockquote>
+<div><p>Target labels.</p>
+</div></blockquote>
+<p><strong>lengths</strong> : array-like of integers, shape (n_sequences,)</p>
+<blockquote>
+<div><p>Lengths of the individual sequences in X, y. The sum of these
+should be n_samples.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>self</strong> : MultinomialHMM</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>Make sure the training set (X) is one-hot encoded; if more than one
+feature in X is on, the emission probabilities will be multiplied.</p>
+</dd></dl>
+
+</dd></dl>
+
+<span class="target" id="module-seqlearn.perceptron"></span><dl class="class">
+<dt id="seqlearn.perceptron.StructuredPerceptron">
+<em class="property">class </em><tt class="descclassname">seqlearn.perceptron.</tt><tt class="descname">StructuredPerceptron</tt><big>(</big><em>decode='viterbi'</em>, <em>lr_exponent=0.1</em>, <em>max_iter=10</em>, <em>random_state=None</em>, <em>trans_features=False</em>, <em>verbose=0</em><big>)</big><a class="headerlink" href="#seqlearn.perceptron.StructuredPerceptron" title="Permalink to this definition">¶</a></dt>
+<dd><p>Structured perceptron for sequence classification.</p>
+<p>This implements the averaged structured perceptron algorithm of Collins
+and Daumé, with the addition of an adaptive learning rate.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>decode</strong> : string, optional</p>
+<blockquote>
+<div><p>Decoding algorithm, either &#8220;bestfirst&#8221; or &#8220;viterbi&#8221; (default).</p>
+</div></blockquote>
+<p><strong>lr_exponent</strong> : float, optional</p>
+<blockquote>
+<div><p>Exponent for inverse scaling learning rate. The effective learning
+rate is 1. / (t ** lr_exponent), where t is the iteration number.</p>
+</div></blockquote>
+<p><strong>max_iter</strong> : integer, optional</p>
+<blockquote>
+<div><p>Number of iterations (aka. epochs). Each sequence is visited once in
+each iteration.</p>
+</div></blockquote>
+<p><strong>random_state</strong> : {integer, np.random.RandomState}, optional</p>
+<blockquote>
+<div><p>Random state or seed used for shuffling sequences within each
+iteration.</p>
+</div></blockquote>
+<p><strong>trans_features</strong> : boolean, optional</p>
+<blockquote>
+<div><p>Whether to attach features to transitions between labels as well as
+individual labels. This requires more time, more memory and more
+samples to train properly.</p>
+</div></blockquote>
+<p><strong>verbose</strong> : integer, optional</p>
+<blockquote class="last">
+<div><p>Verbosity level. Defaults to zero (quiet mode).</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">References</p>
+<p>M. Collins (2002). Discriminative training methods for hidden Markov
+models: Theory and experiments with perceptron algorithms. EMNLP.</p>
+<p>Hal Daumé III (2006). Practical Structured Learning Techniques for
+Natural Language Processing. Ph.D. thesis, U. Southern California.</p>
+<p class="rubric">Methods</p>
+<dl class="method">
+<dt id="seqlearn.perceptron.StructuredPerceptron.fit">
+<tt class="descname">fit</tt><big>(</big><em>X</em>, <em>y</em>, <em>lengths</em><big>)</big><a class="headerlink" href="#seqlearn.perceptron.StructuredPerceptron.fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit to a set of sequences.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>X</strong> : {array-like, sparse matrix}, shape (n_samples, n_features)</p>
+<blockquote>
+<div><p>Feature matrix of individual samples.</p>
+</div></blockquote>
+<p><strong>y</strong> : array-like, shape (n_samples,)</p>
+<blockquote>
+<div><p>Target labels.</p>
+</div></blockquote>
+<p><strong>lengths</strong> : array-like of integers, shape (n_sequences,)</p>
+<blockquote>
+<div><p>Lengths of the individual sequences in X, y. The sum of these
+should be n_samples.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>self</strong> : StructuredPerceptron</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">API reference</a><ul>
+<li><a class="reference internal" href="#module-seqlearn.datasets">Dataset loading utilities</a></li>
+<li><a class="reference internal" href="#module-seqlearn.evaluation">Evaluation and model selection</a></li>
+<li><a class="reference internal" href="#module-seqlearn.hmm">Sequence classifiers</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">seqlearn: sequence classification library for Python</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/reference.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="np-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="seqlearn: sequence classification library for Python"
+             >previous</a> |</li>
+        <li><a href="index.html">seqlearn 0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, Lars Buitinck.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    </div>
+  </body>
+</html>
