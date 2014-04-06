@@ -47,7 +47,7 @@ class StructuredPerceptron(BaseSequenceClassifier):
     References
     ----------
     M. Collins (2002). Discriminative training methods for hidden Markov
-    models: Theory and experiments with perceptron algorithm. EMNLP.
+    models: Theory and experiments with perceptron algorithms. EMNLP.
 
     Hal Daumé III (2006). Practical Structured Learning Techniques for
     Natural Language Processing. Ph.D. thesis, U. Southern California.

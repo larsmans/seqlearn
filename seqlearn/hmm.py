@@ -1,3 +1,5 @@
+"""Hidden Markov models (HMMs) with supervised training."""
+
 import numpy as np
 
 from .base import BaseSequenceClassifier
