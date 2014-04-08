@@ -11,7 +11,7 @@ setup_options = dict(
     maintainer_email="L.J.Buitinck@uva.nl",
     license="MIT",
     url="https://github.com/larsmans/seqlearn",
-    packages=["seqlearn", "seqlearn._utils", "seqlearn._decode", "seqlearn.datasets"],
+    packages=["seqlearn", "seqlearn._utils", "seqlearn._decode", "seqlearn.datasets", "seqlearn._inference"],
     classifiers=[
         "Intended Audience :: Developers",
         "Intended Audience :: Science/Research",
@@ -27,6 +27,7 @@ setup_options = dict(
         Extension("seqlearn._decode.viterbi", ["seqlearn/_decode/viterbi.pyx"]),
         Extension("seqlearn._utils.ctrans", ["seqlearn/_utils/ctrans.pyx"]),
         Extension("seqlearn._utils.safeadd", ["seqlearn/_utils/safeadd.pyx"]),
+        Extension("seqlearn._inference.forward_backward", ["seqlearn/_inference/forward_backward.pyx"]),
     ],
 )
 
