@@ -100,7 +100,8 @@ def _backward(np.ndarray[ndim=2, dtype=np.float64_t] score,
     
     # initialize
     for j in range(n_states):
-        backward[last_index, j] = final[j]
+        # inital backward value = 1.0 = exp(0.0)
+        backward[last_index, j] = 0.0
 
     for i in range(last_index-1, -1, -1):
         for k in range(n_states):
@@ -108,7 +109,11 @@ def _backward(np.ndarray[ndim=2, dtype=np.float64_t] score,
             #if trans_score is not None:
             #    temp_array += trans_score[i, :, k]
             print temp_array
+            if i == last_index-1:
+                temp_array += final
+
             backward[i, k] = logsumexp(temp_array)
+
 
     return backward
 
