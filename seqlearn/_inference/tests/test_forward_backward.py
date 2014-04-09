@@ -32,7 +32,7 @@ def test_backward():
     #true value
     true_backward =  np.array([[2.6375, 2.8425],
                                [1.4444, 1.6444],
-                               [0.1, 0.2]])
+                               [0.0, 0.0]])
     # assert equal
     assert_almost_equal(true_backward, backward, decimal=3)
 
