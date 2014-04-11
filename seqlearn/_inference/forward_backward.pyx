@@ -48,6 +48,9 @@ def _forward(np.ndarray[ndim=2, dtype=np.float64_t] score,
     cdef np.ndarray[ndim=2, dtype=np.float64_t] forward
     cdef np.npy_intp i, j, k, m, n_samples, n_states, last_index
 
+    if trans_score is not None:
+        raise NotImplementedError("No transition scores for forward algorithm yet.")
+
     n_samples, n_states = score.shape[0], score.shape[1]
     last_index = n_samples - 1
     forward = np.empty((n_samples, n_states), dtype=np.float64)
@@ -93,6 +96,9 @@ def _backward(np.ndarray[ndim=2, dtype=np.float64_t] score,
     cdef np.ndarray[ndim=2, dtype=np.float64_t] backward
     cdef np.npy_intp i, j, k, m, n_samples, n_states, last_index
 
+    if trans_score is not None:
+        raise NotImplementedError("No transition scores for backward yet.")
+
     n_samples, n_states = score.shape[0], score.shape[1]
     last_index = n_samples - 1
 
@@ -108,7 +114,6 @@ def _backward(np.ndarray[ndim=2, dtype=np.float64_t] score,
             temp_array = backward[i+1, :] + b_trans[k, :] + score[i+1, :]
             #if trans_score is not None:
             #    temp_array += trans_score[i, :, k]
-            print temp_array
             if i == last_index-1:
                 temp_array += final
 
@@ -132,12 +137,21 @@ def _posterior(np.ndarray[ndim=2, dtype=np.float64_t] score,
     Parameters
     ----------
     Same as Forward function
+
+    References
+    ----------
+    C. Sutton (2006) An Introduction to Conditional Random Fields for
+    Relational Learning
+
     """
 
     cdef np.ndarray[ndim=2, dtype=np.float64_t] forward, backward, state_posterior, trans_posterior
     cdef np.npy_intp i, j, k, n_samples, n_states
     # log likelihood value
     cdef np.float64_t ll, temp_trans_val
+
+    if trans_score is not None:
+        raise NotImplementedError("No transition scores for posterior func yet.")
 
     n_samples, n_states = score.shape[0], score.shape[1]
 
@@ -150,9 +164,9 @@ def _posterior(np.ndarray[ndim=2, dtype=np.float64_t] score,
     backward = _backward(score, trans_score, b_trans, init, final)
 
     # get log likelihood
-    ll = logsumexp(forward[n_samples-1, :] + final)
+    ll = logsumexp(forward[n_samples-1, :])
 
-    # states poterior
+    # states posterior
     for i in range(n_samples):
         for j in range(n_states):
             state_posterior[i, j] = forward[i, j] + backward[i, j] - ll
@@ -163,9 +177,11 @@ def _posterior(np.ndarray[ndim=2, dtype=np.float64_t] score,
         for j in range(n_states):
             for k in range(n_states):
                 temp_trans_val = forward[i, j] + b_trans[j, k] + score[i+1, k] + backward[i+1, k] - ll
-                #if trans_score is not None:
-                #    temp_trans_val += trans_score[i, j, k]
+                # add final feature
+                if i == n_samples-2:
+                    temp_trans_val += final[k]
+                # Note: get tranistion posterior from log scale and sum up from position 1 to (n_samples-1)
                 trans_posterior[j, k] += np.exp(temp_trans_val)
 
-    return state_posterior, trans_posterior
+    return state_posterior, trans_posterior, ll
 
