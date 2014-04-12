@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="top" title="seqlearn 0.1 documentation" href="index.html" />
-    <link rel="prev" title="seqlearn: sequence classification library for Python" href="index.html" /> 
+    <link rel="prev" title="Introduction" href="intro.html" /> 
   </head>
   <body>
     <div class="related">
@@ -41,7 +41,7 @@
           <a href="np-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="index.html" title="seqlearn: sequence classification library for Python"
+          <a href="intro.html" title="Introduction"
              accesskey="P">previous</a> |</li>
         <li><a href="index.html">seqlearn 0.1 documentation</a> &raquo;</li> 
       </ul>
@@ -60,9 +60,16 @@
 <dt id="seqlearn.datasets.load_conll">
 <tt class="descclassname">seqlearn.datasets.</tt><tt class="descname">load_conll</tt><big>(</big><em>f</em>, <em>features</em>, <em>n_features=65536</em>, <em>split=False</em><big>)</big><a class="headerlink" href="#seqlearn.datasets.load_conll" title="Permalink to this definition">¶</a></dt>
 <dd><p>Load CoNLL file, extract features on the tokens and vectorize them.</p>
-<p>This uses the <tt class="docutils literal"><span class="pre">sklearn.feature_extraction.FeatureHasher</span></tt> (the &#8220;hashing
-trick&#8221;) to map symbolic input feature names to columns. It does not
-remember the actual input feature names.</p>
+<p>The ConLL file format is a line-oriented text format that describes
+sequences in a space-separated format, separating the sequences with
+blank lines. Typically, the last space-separated part is a label.</p>
+<p>Since the tab-separated parts are usually tokens (and maybe things like
+part-of-speech tags) rather than feature vectors, a function must be
+supplied that does the actual feature extraction. This function has access
+to the entire sequence, so that it can extract context features.</p>
+<p>A <tt class="docutils literal"><span class="pre">sklearn.feature_extraction.FeatureHasher</span></tt> (the &#8220;hashing trick&#8221;)
+is used to map symbolic input feature names to columns, so this function
+dos not remember the actual input feature names.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -149,10 +156,13 @@ training and test sets.</p>
 </div></blockquote>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>A generator yielding (train_indices, test_indices) pairs when</strong> :</p>
-<p><strong>yield_lengths is false, or tuples</strong> :</p>
-<p><strong>(train_indices, train_lengths, test_indices, test_lengths)</strong> :</p>
-<p class="last"><strong>when yield_lengths is true.</strong> :</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>folds</strong> : iterable</p>
+<blockquote class="last">
+<div><p>A generator yielding (train_indices, test_indices) pairs when
+yield_lengths is false, or tuples
+(train_indices, train_lengths, test_indices, test_lengths)
+when yield_lengths is true.</p>
+</div></blockquote>
 </td>
 </tr>
 </tbody>
@@ -198,7 +208,7 @@ scores may be too high for inconsistent labelings.</p>
 <dl class="function">
 <dt id="seqlearn.evaluation.whole_sequence_accuracy">
 <tt class="descclassname">seqlearn.evaluation.</tt><tt class="descname">whole_sequence_accuracy</tt><big>(</big><em>y_true</em>, <em>y_pred</em>, <em>lengths</em><big>)</big><a class="headerlink" href="#seqlearn.evaluation.whole_sequence_accuracy" title="Permalink to this definition">¶</a></dt>
-<dd><p>Accuracy measured on whole sequences.</p>
+<dd><p>Average accuracy measured on whole sequences.</p>
 <p>Returns the fraction of sequences in y_true that occur in y_pred without a
 single error.</p>
 </dd></dl>
@@ -366,8 +376,8 @@ should be n_samples.</p>
 </ul>
 
   <h4>Previous topic</h4>
-  <p class="topless"><a href="index.html"
-                        title="previous chapter">seqlearn: sequence classification library for Python</a></p>
+  <p class="topless"><a href="intro.html"
+                        title="previous chapter">Introduction</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
     <li><a href="_sources/reference.txt"
@@ -403,7 +413,7 @@ should be n_samples.</p>
           <a href="np-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="index.html" title="seqlearn: sequence classification library for Python"
+          <a href="intro.html" title="Introduction"
              >previous</a> |</li>
         <li><a href="index.html">seqlearn 0.1 documentation</a> &raquo;</li> 
       </ul>

@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>seqlearn: sequence classification library for Python &mdash; seqlearn 0.1 documentation</title>
+    <title>Introduction &mdash; seqlearn 0.1 documentation</title>
     
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -24,8 +24,9 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="seqlearn 0.1 documentation" href="#" />
-    <link rel="next" title="Introduction" href="intro.html" /> 
+    <link rel="top" title="seqlearn 0.1 documentation" href="index.html" />
+    <link rel="next" title="API reference" href="reference.html" />
+    <link rel="prev" title="seqlearn: sequence classification library for Python" href="index.html" /> 
   </head>
   <body>
     <div class="related">
@@ -41,9 +42,12 @@
           <a href="np-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="intro.html" title="Introduction"
+          <a href="reference.html" title="API reference"
              accesskey="N">next</a> |</li>
-        <li><a href="#">seqlearn 0.1 documentation</a> &raquo;</li> 
+        <li class="right" >
+          <a href="index.html" title="seqlearn: sequence classification library for Python"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">seqlearn 0.1 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -52,31 +56,23 @@
         <div class="bodywrapper">
           <div class="body">
             
-  <div class="section" id="seqlearn-sequence-classification-library-for-python">
-<h1>seqlearn: sequence classification library for Python<a class="headerlink" href="#seqlearn-sequence-classification-library-for-python" title="Permalink to this headline">¶</a></h1>
-<p>seqlearn is a sequence classification library for Python,
-designed to interoperate with the scikit-learn machine learning library
-and the wider NumPy/SciPy ecosystem of numerical and scientific software.</p>
-<p>Contents:</p>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
-<li class="toctree-l1"><a class="reference internal" href="reference.html">API reference</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="reference.html#module-seqlearn.datasets">Dataset loading utilities</a></li>
-<li class="toctree-l2"><a class="reference internal" href="reference.html#module-seqlearn.evaluation">Evaluation and model selection</a></li>
-<li class="toctree-l2"><a class="reference internal" href="reference.html#module-seqlearn.hmm">Sequence classifiers</a></li>
-</ul>
-</li>
-</ul>
-</div>
-</div>
-<div class="section" id="indices-and-tables">
-<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
-<ul class="simple">
-<li><a class="reference internal" href="genindex.html"><em>Index</em></a></li>
-<li><a class="reference internal" href="py-modindex.html"><em>Module Index</em></a></li>
-<li><a class="reference internal" href="search.html"><em>Search Page</em></a></li>
-</ul>
+  <div class="section" id="introduction">
+<h1>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h1>
+<p>seqlearn extends the <a class="reference external" href="http://scikit-learn.org">scikit-learn</a>
+machine learning library to deal with sequence classification:
+sequences of observations that must be individually labeled,
+but where the order in which they appear matters.</p>
+<p>seqlearn mimicks the basic scikit-learn <tt class="docutils literal"><span class="pre">fit</span></tt>/<tt class="docutils literal"><span class="pre">predict</span></tt> API
+and tries to stay compatible with scikit-learn&#8217;s data formats,
+but adds an argument to the scikit-learn methods that encodes the structure
+of the input. This argument is called <tt class="docutils literal"><span class="pre">lengths</span></tt>
+and should be an array of integers denoting the respective lengths
+of sequences in <tt class="docutils literal"><span class="pre">(X,</span> <span class="pre">y)</span></tt>.</p>
+<p>For example, if <tt class="docutils literal"><span class="pre">X</span></tt> and <tt class="docutils literal"><span class="pre">y</span></tt> both have length (<tt class="docutils literal"><span class="pre">shape[0]</span></tt>) of 10, then
+<tt class="docutils literal"><span class="pre">lengths=[6,</span> <span class="pre">4]</span></tt> encodes the information that <tt class="docutils literal"><span class="pre">(X[:6],</span> <span class="pre">y[:6])</span></tt> and
+<tt class="docutils literal"><span class="pre">(X[6:10],</span> <span class="pre">y[6:10])</span></tt> are both coherent sequences.
+This encoding of sequence information allows for a fast implementation
+using NumPy&#8217;s vectorized operations.</p>
 </div>
 
 
@@ -85,18 +81,15 @@ and the wider NumPy/SciPy ecosystem of numerical and scientific software.</p>
       </div>
       <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="#">Table Of Contents</a></h3>
-  <ul>
-<li><a class="reference internal" href="#">seqlearn: sequence classification library for Python</a></li>
-<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
-</ul>
-
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">seqlearn: sequence classification library for Python</a></p>
   <h4>Next topic</h4>
-  <p class="topless"><a href="intro.html"
-                        title="next chapter">Introduction</a></p>
+  <p class="topless"><a href="reference.html"
+                        title="next chapter">API reference</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
-    <li><a href="_sources/index.txt"
+    <li><a href="_sources/intro.txt"
            rel="nofollow">Show Source</a></li>
   </ul>
 <div id="searchbox" style="display: none">
@@ -129,9 +122,12 @@ and the wider NumPy/SciPy ecosystem of numerical and scientific software.</p>
           <a href="np-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="intro.html" title="Introduction"
+          <a href="reference.html" title="API reference"
              >next</a> |</li>
-        <li><a href="#">seqlearn 0.1 documentation</a> &raquo;</li> 
+        <li class="right" >
+          <a href="index.html" title="seqlearn: sequence classification library for Python"
+             >previous</a> |</li>
+        <li><a href="index.html">seqlearn 0.1 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
