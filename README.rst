@@ -47,27 +47,18 @@ Train a model::
     >>> clf = StructuredPerceptron()
     >>> clf.fit(X_train, y_train, lengths_train)
 
-Check how well you did on a validation set, say ``validation.txt``:
+Check how well you did on a validation set, say ``validation.txt``::
 
     >>> X_test, y_test, lengths_test = load_conll("validation.txt", features)
     >>> from seqlearn.evaluation import bio_f_score
     >>> y_pred = clf.predict(X_test, lengths_test)
     >>> print(bio_f_score(y_test, y_pred))
 
+For more information, see the `documentation
+<http://larsmans.github.io/seqlearn>`_.
 
-API
----
 
-seqlearn tries to mimick the scikit-learn classifier API and stay compatible
-with scikit-learn's data formats, but those are designed to represent sets of
-unrelated samples (as rows in a matrix ``X`` and elements of a vector ``y``).
-Therefore, the information about which samples belong to which sequences must
-be encoded separately. For this purpose, seqlearn methods accept an array
-called ``lengths`` which contains the lengths of the sequences in ``(X, y)``.
+|Travis|_
 
-For example, if ``X`` and ``y`` both have length (``shape[0]``) of 10, then
-``lengths=[6, 4]`` encodes the information that ``(X[:6], y[:6])`` and
-``(X[6:10], y[6:10])`` are both coherent sequences.
-
-This encoding of sequence information may seem cumbersome at first, but allows
-for a fast implementation using NumPy's vectorized operations.
+.. |Travis| image:: https://api.travis-ci.org/larsmans/seqlearn.png?branch=master
+.. _Travis: https://travis-ci.org/larsmans/seqlearn
