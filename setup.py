@@ -27,7 +27,9 @@ setup_options = dict(
         Extension("seqlearn._decode.viterbi", ["seqlearn/_decode/viterbi.pyx"]),
         Extension("seqlearn._utils.ctrans", ["seqlearn/_utils/ctrans.pyx"]),
         Extension("seqlearn._utils.safeadd", ["seqlearn/_utils/safeadd.pyx"]),
-        Extension("seqlearn._inference.forward_backward", ["seqlearn/_inference/forward_backward.pyx"]),
+        Extension("seqlearn._inference.forward_backward",
+                  ["seqlearn/_inference/forward_backward.pyx"],
+                  libraries=["m"]),
     ],
 )
 

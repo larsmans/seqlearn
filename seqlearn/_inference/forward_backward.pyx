@@ -6,10 +6,35 @@ cimport cython
 cimport numpy as np
 import numpy as np
 
-from .._utils import logsumexp
-
+from libc.math cimport exp, log
 
 np.import_array()
+
+
+cdef np.float64_t _logsumexp(np.ndarray[ndim=1, dtype=np.float64_t] arr):
+    """
+    simple 1-D logsumexp function
+    """
+    cdef np.npy_intp i, j, arr_length
+    cdef np.float64_t v_max, v_sum
+
+    arr_length = arr.shape[0]
+
+    # find max
+    v_max = arr[0]
+    for i from 1 <= i < arr_length:
+        if arr[i] > v_max:
+            v_max = arr[i]
+
+    #sum of exp value
+    v_sum = 0.0
+    for j from 0 <= j < arr_length:
+        v_sum += exp(arr[j] - v_max)
+
+    # logsumexp value
+    v_sum = log(v_sum) + v_max
+    return v_sum
+
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
@@ -46,6 +71,7 @@ def _forward(np.ndarray[ndim=2, dtype=np.float64_t] score,
     """
 
     cdef np.ndarray[ndim=2, dtype=np.float64_t] forward
+    cdef np.ndarray[ndim=1, dtype=np.float64_t] temp_array
     cdef np.npy_intp i, j, k, m, n_samples, n_states, last_index
 
     if trans_score is not None:
@@ -66,7 +92,7 @@ def _forward(np.ndarray[ndim=2, dtype=np.float64_t] score,
             #    temp_array += trans_score[i-1, k, :]
             if i == last_index:
                 temp_array += final[k]
-            forward[i, k] = logsumexp(temp_array)
+            forward[i, k] = _logsumexp(temp_array)
 
     return forward
 
@@ -94,6 +120,7 @@ def _backward(np.ndarray[ndim=2, dtype=np.float64_t] score,
     """
 
     cdef np.ndarray[ndim=2, dtype=np.float64_t] backward
+    cdef np.ndarray[ndim=1, dtype=np.float64_t] temp_array
     cdef np.npy_intp i, j, k, m, n_samples, n_states, last_index
 
     if trans_score is not None:
@@ -117,7 +144,7 @@ def _backward(np.ndarray[ndim=2, dtype=np.float64_t] score,
             if i == last_index-1:
                 temp_array += final
 
-            backward[i, k] = logsumexp(temp_array)
+            backward[i, k] = _logsumexp(temp_array)
 
 
     return backward
@@ -164,7 +191,7 @@ def _posterior(np.ndarray[ndim=2, dtype=np.float64_t] score,
     backward = _backward(score, trans_score, b_trans, init, final)
 
     # get log likelihood
-    ll = logsumexp(forward[n_samples-1, :])
+    ll = _logsumexp(forward[n_samples-1, :])
 
     # states posterior
     for i in range(n_samples):
