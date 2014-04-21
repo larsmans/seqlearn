@@ -11,6 +11,8 @@ from libc.math cimport exp, log
 np.import_array()
 
 
+@cython.boundscheck(False)
+@cython.wraparound(False)
 cdef np.float64_t _logsumexp(np.ndarray[ndim=1, dtype=np.float64_t] arr):
     """
     simple 1-D logsumexp function
@@ -38,11 +40,11 @@ cdef np.float64_t _logsumexp(np.ndarray[ndim=1, dtype=np.float64_t] arr):
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-def _forward(np.ndarray[ndim=2, dtype=np.float64_t] score,
-            np.ndarray[ndim=3, dtype=np.float64_t] trans_score,
-            np.ndarray[ndim=2, dtype=np.float64_t] b_trans,
-            np.ndarray[ndim=1, dtype=np.float64_t] init,
-            np.ndarray[ndim=1, dtype=np.float64_t] final):
+cdef _forward(np.ndarray[ndim=2, dtype=np.float64_t] score,
+              np.ndarray[ndim=3, dtype=np.float64_t] trans_score,
+              np.ndarray[ndim=2, dtype=np.float64_t] b_trans,
+              np.ndarray[ndim=1, dtype=np.float64_t] init,
+              np.ndarray[ndim=1, dtype=np.float64_t] final):
     """
     Forward Algorithm
 
@@ -99,12 +101,11 @@ def _forward(np.ndarray[ndim=2, dtype=np.float64_t] score,
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-def _backward(np.ndarray[ndim=2, dtype=np.float64_t] score,
-            np.ndarray[ndim=3, dtype=np.float64_t] trans_score,
-            np.ndarray[ndim=2, dtype=np.float64_t] b_trans,
-            np.ndarray[ndim=1, dtype=np.float64_t] init,
-            np.ndarray[ndim=1, dtype=np.float64_t] final):
-    
+cdef _backward(np.ndarray[ndim=2, dtype=np.float64_t] score,
+               np.ndarray[ndim=3, dtype=np.float64_t] trans_score,
+               np.ndarray[ndim=2, dtype=np.float64_t] b_trans,
+               np.ndarray[ndim=1, dtype=np.float64_t] init,
+               np.ndarray[ndim=1, dtype=np.float64_t] final):
     """
     Backward Algorithm (similar to forward Algorithm)
 
@@ -197,7 +198,7 @@ def _posterior(np.ndarray[ndim=2, dtype=np.float64_t] score,
     for i in range(n_samples):
         for j in range(n_states):
             state_posterior[i, j] = forward[i, j] + backward[i, j] - ll
-    state_posterior = np.exp(state_posterior)
+    np.exp(state_posterior, out=state_posterior)
 
     # transition posterior
     for i in range(n_samples-1):
@@ -207,8 +208,9 @@ def _posterior(np.ndarray[ndim=2, dtype=np.float64_t] score,
                 # add final feature
                 if i == n_samples-2:
                     temp_trans_val += final[k]
-                # Note: get tranistion posterior from log scale and sum up from position 1 to (n_samples-1)
-                trans_posterior[j, k] += np.exp(temp_trans_val)
+                # Note: get transition posterior from log scale and sum up
+                # from position 1 to (n_samples-1)
+                trans_posterior[j, k] += exp(temp_trans_val)
 
     return state_posterior, trans_posterior, ll
 
