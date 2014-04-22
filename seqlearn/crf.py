@@ -140,12 +140,11 @@ class LinearChainCRF(BaseSequenceClassifier):
 
                 score = safe_sparse_dot(X_i, w.T)
 
-                w_true = safe_sparse_dot(y_t_i.T, X_i)
-
                 # posterior distribution for states & transtion
                 post_state, post_trans, ll = _posterior(score, None, b_trans, b_init, b_final)
 
                 if self.compute_obj_val:
+                    w_true = safe_sparse_dot(y_t_i.T, X_i)
                     feature_val = np.sum(w_true * w)
                     trans_val = np.sum(t_trans * b_trans)
                     init_val = np.sum(y_t_i[0] * b_init)
