@@ -159,7 +159,7 @@ class LinearChainCRF(BaseSequenceClassifier):
                             it, sample_count, avg_obj_val))
 
                 # update feature w
-                w_update = lr * (safe_sparse_dot(y_t_i.T, X_i) - safe_sparse_dot(post_state.T, X_i) - (reg * w))
+                w_update = safe_sparse_dot(lr * (y_t_i - post_state).T, X_i) - ((lr * reg) * w)
 
                 # update init & final matrix
                 b_init_update = lr * (post_state[0, :] - y_t_i[0] + reg * b_init)

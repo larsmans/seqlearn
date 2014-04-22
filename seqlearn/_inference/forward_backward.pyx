@@ -1,3 +1,4 @@
+# cython: profile=True
 # Author: Chyi-Kwei Yau
 
 """Forward-Backward algorithm for CRF training & posterior calculation"""
