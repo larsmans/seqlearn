@@ -1,10 +1,11 @@
 # Copyright 2013 Lars Buitinck
 
 from contextlib import closing
-from itertools import chain, groupby, imap
+from itertools import chain, groupby
 
 import numpy as np
 from sklearn.feature_extraction import FeatureHasher
+from sklearn.externals import six
 
 
 def load_conll(f, features, n_features=(2 ** 16), split=False):
@@ -60,7 +61,7 @@ def load_conll(f, features, n_features=(2 ** 16), split=False):
 
 def _conll_sequences(f, features, labels, lengths, split):
     # Divide input into blocks of empty and non-empty lines.
-    lines = imap(str.strip, f)
+    lines = (str.strip(line) for line in  f)
     groups = (grp for nonempty, grp in groupby(lines, bool) if nonempty)
 
     for group in groups:
@@ -72,9 +73,9 @@ def _conll_sequences(f, features, labels, lengths, split):
 
         labels.extend(lbl)
         lengths.append(len(lbl))
-        for i in xrange(len(obs)):
+        for i in six.moves.xrange(len(obs)):
             yield features(obs, i)
 
 
 def _open(f):
-    return closing(open(f) if isinstance(f, basestring) else f)
+    return closing(open(f) if isinstance(f, six.string_types) else f)

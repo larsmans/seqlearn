@@ -1,17 +1,17 @@
 # Copyright 2013 Lars Buitinck
 # encoding: utf-8
 
-from __future__ import division, print_function
+from __future__ import division, print_function, absolute_import
 
 import sys
 
 import numpy as np
 from scipy.sparse import csc_matrix
+from sklearn.externals import six
 
 from .base import BaseSequenceClassifier
 from ._utils import (atleast2d_or_csr, check_random_state, count_trans,
                      make_trans_matrix, safe_add, safe_sparse_dot)
-
 
 class StructuredPerceptron(BaseSequenceClassifier):
     """Structured perceptron for sequence classification.
@@ -122,7 +122,7 @@ class StructuredPerceptron(BaseSequenceClassifier):
         avg_count = 1.
         lr_exponent = self.lr_exponent
 
-        for it in xrange(1, self.max_iter + 1):
+        for it in six.moves.xrange(1, self.max_iter + 1):
             lr = 1. / (it ** lr_exponent)
 
             if self.verbose:
