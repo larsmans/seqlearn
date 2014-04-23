@@ -2,6 +2,7 @@ from functools import partial
 from warnings import warn
 
 import numpy as np
+from sklearn.externals import six
 
 from ._utils import check_random_state
 
@@ -144,7 +145,7 @@ class SequenceKFold(object):
 
         seq_ind = np.arange(len(lengths))
 
-        for _ in xrange(self.n_iter):
+        for _ in six.moves.xrange(self.n_iter):
             if self.shuffle:
                 rng.shuffle(seq_ind)
 
