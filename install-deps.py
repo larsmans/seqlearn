@@ -1,4 +1,8 @@
 #!/usr/bin/env python
+"""
+A hack: this script is used in tox.ini to install dependencies
+using conda instead of pip.
+"""
 
 if __name__ == '__main__':
     import sys
