@@ -1,13 +1,14 @@
 from distutils.core import setup
 from distutils.extension import Extension
-from Cython.Distutils import build_ext
 import os.path
 import sys
+import re
+from Cython.Distutils import build_ext
 
 
 dist_dir = os.path.dirname(os.path.abspath(__file__))
-execfile(os.path.join(dist_dir, 'seqlearn/_version.py'))
-
+with open(os.path.join(dist_dir, 'seqlearn/_version.py'), 'r') as fp:
+    __version__ = re.search("__version__ = '(.*)'", fp.read()).group(1)
 
 def readme():
     try:
@@ -27,12 +28,18 @@ setup_options = dict(
     url="https://github.com/larsmans/seqlearn",
     packages=["seqlearn", "seqlearn._utils", "seqlearn._decode"],
     classifiers=[
+        "Development Status :: 3 - Alpha",
         "Intended Audience :: Developers",
         "Intended Audience :: Science/Research",
         "Topic :: Scientific/Engineering",
         "Topic :: Scientific/Engineering :: Artificial Intelligence",
         "Topic :: Scientific/Engineering :: Information Analysis",
         "Topic :: Text Processing",
+        "License :: OSI Approved :: MIT License",
+        "Programming Language :: Python :: 2",
+        "Programming Language :: Python :: 2.7",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.3",
     ],
     cmdclass={'build_ext': build_ext},
     ext_modules=[
@@ -42,6 +49,7 @@ setup_options = dict(
         Extension("seqlearn._utils.ctrans", ["seqlearn/_utils/ctrans.pyx"]),
         Extension("seqlearn._utils.safeadd", ["seqlearn/_utils/safeadd.pyx"]),
     ],
+    requires=["sklearn"],
 )
 
 # For these actions, NumPy is not required. We want them to succeed without,

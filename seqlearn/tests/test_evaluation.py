@@ -31,7 +31,7 @@ def test_accuracy():
     y_true = ["0111001", "1001", "00011111", "010101011", "1110"]
     y_pred = ["0010010", "1001", "00011110", "010101011", "1110"]
     assert_equal(.6, whole_sequence_accuracy(''.join(y_true), ''.join(y_pred),
-                                             map(len, y_true)))
+                                             [len(y) for y in y_true]))
 
 
 def test_kfold():
@@ -48,8 +48,10 @@ def test_kfold():
     y = np.asarray(list(''.join(sequences)))
 
     for random_state in [75, 82, 91, 57, 291]:
-        kfold = SequenceKFold(map(len, sequences), n_folds=3, shuffle=True,
-                              random_state=random_state)
+        kfold = SequenceKFold(
+            [len(s) for s in sequences],
+            n_folds=3, shuffle=True, random_state=random_state
+        )
         folds = list(iter(kfold))
         for train, lengths_train, test, lengths_test in folds:
             assert_true(np.issubdtype(train.dtype, np.integer))
