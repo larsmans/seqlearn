@@ -1,0 +1,6 @@
+include README.rst
+include tox.ini
+
+recursive-include seqlearn *.pyx
+recursive-include examples *.py
+recursive-include doc *.py *.rst Makefile
