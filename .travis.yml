@@ -1,16 +1,8 @@
 language: python
-python:
-  # Only 2.7 to prevent having to install NumPy and SciPy from source.
-  - "2.7"
-
-virtualenv:
-  system_site_packages: true
-
+python: 2.7
+env:
+- TOXENV=py27
+- TOXENV=py33
 install:
-  - sudo apt-get update
-  - sudo apt-get install cython python-numpy python-scipy python-sklearn
-  - pip install .
-  #- pip install -r requirements.txt
-
-script:
-  - nosetests --exe seqlearn
+- pip install tox
+script: tox
