@@ -6,6 +6,8 @@
 *.sw[op]
 .DS_Store
 build/
+.tox
+MANIFEST
 
 pip-log.txt
 

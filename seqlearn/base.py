@@ -1,6 +1,7 @@
 import numpy as np
 from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.metrics import accuracy_score
+from sklearn.externals import six
 
 from ._decode import DECODERS
 from ._utils import atleast2d_or_csr, safe_sparse_dot, validate_lengths
@@ -53,7 +54,7 @@ class BaseSequenceClassifier(BaseEstimator, ClassifierMixin):
             y = [decode(scores[start[i]:end[i]], trans_scores,
                         self.intercept_trans_, self.intercept_init_,
                         self.intercept_final_)
-                 for i in xrange(len(lengths))]
+                 for i in six.moves.xrange(len(lengths))]
             y = np.hstack(y)
 
         return self.classes_[y]
