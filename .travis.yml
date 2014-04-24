@@ -14,7 +14,7 @@ before_install:
 # Install packages
 install:
 - conda install --yes python=$TRAVIS_PYTHON_VERSION numpy scipy scikit-learn nose cython
-- pip install .
+- python setup.py install
 
 # Run test
 script:
