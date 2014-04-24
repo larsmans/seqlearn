@@ -1,5 +1,4 @@
 include README.rst
-include tox.ini
 
 recursive-include seqlearn *.pyx
 recursive-include examples *.py
