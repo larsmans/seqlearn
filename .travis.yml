@@ -9,8 +9,9 @@ virtualenv:
 install:
   - sudo apt-get update
   - sudo apt-get install cython python-numpy python-scipy python-sklearn
+  #- pip install scikit-learn
   - pip install .
-  #- pip install -r requirements.txt
 
 script:
+  - cd /tmp
   - nosetests --exe seqlearn

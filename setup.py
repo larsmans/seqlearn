@@ -25,7 +25,8 @@ setup_options = dict(
     maintainer_email="larsmans@gmail.com",
     license="MIT",
     url="https://github.com/larsmans/seqlearn",
-    packages=["seqlearn", "seqlearn._utils", "seqlearn._decode"],
+    packages=["seqlearn", "seqlearn._utils", "seqlearn._decode",
+              "seqlearn/tests"],
     classifiers=[
         "Intended Audience :: Developers",
         "Intended Audience :: Science/Research",
