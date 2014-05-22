@@ -29,8 +29,9 @@ def load_conll(f, features, n_features=(2 ** 16), split=False):
     f : {string, file-like}
         Input file.
     features : callable
-        Feature extraction function. Must take a list of tokens (see below)
-        and an index into this list.
+        Feature extraction function. Must take a list of tokens l that
+        represent a single sequence and an index i into this list, and must
+        return an iterator over strings that represent the features of l[i].
     n_features : integer, optional
         Number of columns in the output.
     split : boolean, default=False
