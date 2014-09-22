@@ -11,7 +11,7 @@ possible an API.
 Compiling and installing
 ------------------------
 
-Get NumPy >=1.4, SciPy >=0.10, Cython >=0.19 and a recent version of
+Get NumPy >=1.6, SciPy >=0.11, Cython >=0.20.2 and a recent version of
 scikit-learn. Then issue::
 
     python setup.py install

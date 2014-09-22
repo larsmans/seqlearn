@@ -13,7 +13,7 @@ import scipy.sparse as sp
 # XXX These are private helper functions from scikit-learn. We should copy
 # the code over instead of importing them.
 from sklearn.utils import check_random_state
-from sklearn.utils.extmath import logsumexp, safe_sparse_dot
+from sklearn.utils.extmath import safe_sparse_dot
 
 from .ctrans import count_trans
 from .safeadd import safe_add
