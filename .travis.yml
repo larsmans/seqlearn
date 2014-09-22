@@ -8,7 +8,8 @@ virtualenv:
 
 install:
   - sudo apt-get update
-  - sudo apt-get install cython python-numpy python-scipy
+  - sudo apt-get install cython python-numpy
+  - pip install scipy
   - pip install scikit-learn
   - pip install .
 
