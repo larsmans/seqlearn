@@ -8,7 +8,7 @@ virtualenv:
 
 install:
   - sudo apt-get update
-  - sudo apt-get install cython python-numpy
+  - sudo apt-get install cython gfortran libatlas-dev liblapack-dev python-numpy
   - pip install scipy
   - pip install scikit-learn
   - pip install .
