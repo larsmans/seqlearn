@@ -14,7 +14,7 @@ class BaseSequenceClassifier(BaseEstimator, ClassifierMixin):
         try:
             return DECODERS[self.decode]
         except KeyError:
-            return ValueError("Unknown decoder {0!r}".format(self.decode))
+            raise ValueError("Unknown decoder {0!r}".format(self.decode))
 
     def predict(self, X, lengths=None):
         """Predict labels/tags for samples X.
