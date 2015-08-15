@@ -1,0 +1,4 @@
+include README.rst
+
+recursive-include doc *.rst Makefile conf.py
+recursive-include examples *.bio *.py

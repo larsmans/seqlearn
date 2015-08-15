@@ -15,3 +15,5 @@ pip-log.txt
 
 *.html
 *.lprof
+
+MANIFEST
