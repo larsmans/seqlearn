@@ -1,6 +1,6 @@
+from Cython.Build import cythonize
 from distutils.core import setup
 from distutils.extension import Extension
-from Cython.Distutils import build_ext
 import os.path
 import re
 import sys
@@ -43,14 +43,10 @@ setup_options = dict(
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.3",
     ],
-    cmdclass={'build_ext': build_ext},
-    ext_modules=[
-        Extension("seqlearn._decode.bestfirst",
-                  ["seqlearn/_decode/bestfirst.pyx"]),
-        Extension("seqlearn._decode.viterbi", ["seqlearn/_decode/viterbi.pyx"]),
-        Extension("seqlearn._utils.ctrans", ["seqlearn/_utils/ctrans.pyx"]),
-        Extension("seqlearn._utils.safeadd", ["seqlearn/_utils/safeadd.pyx"]),
-    ],
+    ext_modules=cythonize(["seqlearn/_decode/bestfirst.pyx",
+                           "seqlearn/_decode/viterbi.pyx",
+                           "seqlearn/_utils/ctrans.pyx",
+                           "seqlearn/_utils/safeadd.pyx"]),
     requires=["sklearn"],
 )
 
