@@ -1,16 +1,30 @@
 language: python
 python:
-  # Only 2.7 to prevent having to install NumPy and SciPy from source.
   - "2.7"
+  - "3.4"
+
+sudo: required
+dist: trusty    # We want a recent SciPy.
+
+addons:
+  apt:
+    packages:
+      - python-numpy
+      - python-scipy
+      - python3-numpy
+      - python3-scipy
+      - libatlas-dev
+      - liblapack-dev
+      - gfortran
 
 virtualenv:
   system_site_packages: true
 
 install:
-  - sudo apt-get update
-  - sudo apt-get install cython gfortran libatlas-dev liblapack-dev python-numpy
-  - pip install scipy
-  - pip install scikit-learn
+  - deactivate
+  - virtualenv --system-site-packages testenv
+  - source testenv/bin/activate
+  - pip install -U Cython nose scikit-learn
   - pip install .
 
 script:
