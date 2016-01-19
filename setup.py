@@ -1,6 +1,7 @@
 from Cython.Build import cythonize
 from distutils.core import setup
 from distutils.extension import Extension
+import numpy as np
 import os.path
 import re
 import sys
@@ -50,12 +51,10 @@ setup_options = dict(
     requires=["sklearn"],
 )
 
-# For these actions, NumPy is not required. We want them to succeed without,
-# for example when pip is used to install seqlearn without NumPy present.
-NO_NUMPY_ACTIONS = ('--help-commands', 'egg_info', '--version', 'clean')
-if not ('--help' in sys.argv[1:]
-        or len(sys.argv) > 1 and sys.argv[1] in NO_NUMPY_ACTIONS):
-    import numpy
-    setup_options['include_dirs'] = [numpy.get_include()]
+# NOTE: See https://github.com/hmmlearn/hmmlearn/issues/43. However,
+# cythonize doesn't pass include_path to Extension either, so we're
+# hacking it directly.
+for em in setup_options["ext_modules"]:
+    em.include_dirs = [np.get_include()]
 
 setup(**setup_options)
