@@ -50,12 +50,6 @@ setup_options = dict(
     requires=["sklearn", "Cython"],
 )
 
-# NOTE: See https://github.com/hmmlearn/hmmlearn/issues/43. However,
-# cythonize doesn't pass include_path to Extension either, so we're
-# hacking it directly.
-for em in setup_options["ext_modules"]:
-    em.include_dirs = [np.get_include()]
-    
 # FIXME: Cython doesn't exist on Heroku before pip runs. And this depends
 # on Cython. But we can't declare that we depend on Cython because we try
 # to import Cython before it exists and promptly exception out. So, we declare
@@ -70,6 +64,16 @@ for em in setup_options["ext_modules"]:
 try:
     from Cython.Build import cythonize
     setup_options["ext_modules"] = cythonize(setup_options["ext_modules"])
+
+    # NOTE: See https://github.com/hmmlearn/hmmlearn/issues/43. However,
+    # cythonize doesn't pass include_path to Extension either, so we're
+    # hacking it directly.
+    #
+    # NOTE: This needs to be done after the above cythonize call since
+    # they're just strings otherwise.
+    for em in setup_options["ext_modules"]:
+        em.include_dirs = [np.get_include()]
+    
 except ImportError:
     pass
 
