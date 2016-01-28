@@ -48,7 +48,7 @@ setup_options = dict(
                            "seqlearn/_decode/viterbi.pyx",
                            "seqlearn/_utils/ctrans.pyx",
                            "seqlearn/_utils/safeadd.pyx"]),
-    requires=["sklearn"],
+    requires=["sklearn", "Cython"],
 )
 
 # NOTE: See https://github.com/hmmlearn/hmmlearn/issues/43. However,
