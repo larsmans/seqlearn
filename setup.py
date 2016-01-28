@@ -43,11 +43,7 @@ setup_options = dict(
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.3",
     ],
-    ext_modules=["seqlearn/_decode/bestfirst.pyx",
-                 "seqlearn/_decode/viterbi.pyx",
-                 "seqlearn/_utils/ctrans.pyx",
-                 "seqlearn/_utils/safeadd.pyx"],
-    requires=["sklearn", "Cython"],
+    install_requires=["sklearn", "Cython"],
 )
 
 # FIXME: Cython doesn't exist on Heroku before pip runs. And this depends
@@ -63,7 +59,10 @@ setup_options = dict(
 # P.S. I hope some interns get a laugh out of this someday.
 try:
     from Cython.Build import cythonize
-    setup_options["ext_modules"] = cythonize(setup_options["ext_modules"])
+    setup_options["ext_modules"] = cythonize(["seqlearn/_decode/bestfirst.pyx",
+                                              "seqlearn/_decode/viterbi.pyx",
+                                              "seqlearn/_utils/ctrans.pyx",
+                                              "seqlearn/_utils/safeadd.pyx"])
 
     # NOTE: See https://github.com/hmmlearn/hmmlearn/issues/43. However,
     # cythonize doesn't pass include_path to Extension either, so we're
@@ -73,7 +72,7 @@ try:
     # they're just strings otherwise.
     for em in setup_options["ext_modules"]:
         em.include_dirs = [np.get_include()]
-    
+
 except ImportError:
     pass
 
