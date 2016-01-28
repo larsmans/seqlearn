@@ -1,4 +1,3 @@
-from Cython.Build import cythonize
 from distutils.core import setup
 from distutils.extension import Extension
 import numpy as np
@@ -44,10 +43,10 @@ setup_options = dict(
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.3",
     ],
-    ext_modules=cythonize(["seqlearn/_decode/bestfirst.pyx",
-                           "seqlearn/_decode/viterbi.pyx",
-                           "seqlearn/_utils/ctrans.pyx",
-                           "seqlearn/_utils/safeadd.pyx"]),
+    ext_modules=["seqlearn/_decode/bestfirst.pyx",
+                 "seqlearn/_decode/viterbi.pyx",
+                 "seqlearn/_utils/ctrans.pyx",
+                 "seqlearn/_utils/safeadd.pyx"],
     requires=["sklearn", "Cython"],
 )
 
@@ -56,5 +55,22 @@ setup_options = dict(
 # hacking it directly.
 for em in setup_options["ext_modules"]:
     em.include_dirs = [np.get_include()]
+    
+# FIXME: Cython doesn't exist on Heroku before pip runs. And this depends
+# on Cython. But we can't declare that we depend on Cython because we try
+# to import Cython before it exists and promptly exception out. So, we declare
+# the dependency above (when pip presumably first loads it to check dependencies)
+# and then backtrack and add back the cythonize call after Cython is installed by
+# pip and it calls us again to actually install us. This is a glorious, GLORIOUS
+# hack but fuck it. It's 01-27 and we're launching in 4 days. JFDI, bitch.
+#
+# -@kushalc (2016-01-27)
+#
+# P.S. I hope some interns get a laugh out of this someday.
+try:
+    from Cython.Build import cythonize
+    setup_options["ext_modules"] = cythonize(setup_options["ext_modules"])
+except ImportError:
+    pass
 
 setup(**setup_options)
