@@ -43,7 +43,7 @@ setup_options = dict(
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.3",
     ],
-    install_requires=["sklearn", "Cython"],
+    setup_requires=["sklearn", "Cython"],
 )
 
 # FIXME: Cython doesn't exist on Heroku before pip runs. And this depends
