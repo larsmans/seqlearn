@@ -3,6 +3,7 @@
 
 import numpy as np
 from scipy.sparse import csr_matrix
+from sklearn.externals import six
 
 
 def make_trans_matrix(y, n_classes, dtype=np.float64):
@@ -14,7 +15,7 @@ def make_trans_matrix(y, n_classes, dtype=np.float64):
     """
     indices = np.empty(len(y), dtype=np.int32)
 
-    for i in xrange(len(y) - 1):
+    for i in six.moves.xrange(len(y) - 1):
         indices[i] = y[i] * i + y[i + 1]
 
     indptr = np.arange(len(y) + 1)
