@@ -1,6 +1,6 @@
-from Cython.Build import cythonize
 from distutils.core import setup
 from distutils.extension import Extension
+import numpy as np
 import os.path
 import re
 import sys
@@ -43,19 +43,37 @@ setup_options = dict(
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.3",
     ],
-    ext_modules=cythonize(["seqlearn/_decode/bestfirst.pyx",
-                           "seqlearn/_decode/viterbi.pyx",
-                           "seqlearn/_utils/ctrans.pyx",
-                           "seqlearn/_utils/safeadd.pyx"]),
-    requires=["sklearn"],
+    setup_requires=["sklearn", "Cython"],
 )
 
-# For these actions, NumPy is not required. We want them to succeed without,
-# for example when pip is used to install seqlearn without NumPy present.
-NO_NUMPY_ACTIONS = ('--help-commands', 'egg_info', '--version', 'clean')
-if not ('--help' in sys.argv[1:]
-        or len(sys.argv) > 1 and sys.argv[1] in NO_NUMPY_ACTIONS):
-    import numpy
-    setup_options['include_dirs'] = [numpy.get_include()]
+# FIXME: Cython doesn't exist on Heroku before pip runs. And this depends
+# on Cython. But we can't declare that we depend on Cython because we try
+# to import Cython before it exists and promptly exception out. So, we declare
+# the dependency above (when pip presumably first loads it to check dependencies)
+# and then backtrack and add back the cythonize call after Cython is installed by
+# pip and it calls us again to actually install us. This is a glorious, GLORIOUS
+# hack but fuck it. It's 01-27 and we're launching in 4 days. JFDI, bitch.
+#
+# -@kushalc (2016-01-27)
+#
+# P.S. I hope some interns get a laugh out of this someday.
+try:
+    from Cython.Build import cythonize
+    setup_options["ext_modules"] = cythonize(["seqlearn/_decode/bestfirst.pyx",
+                                              "seqlearn/_decode/viterbi.pyx",
+                                              "seqlearn/_utils/ctrans.pyx",
+                                              "seqlearn/_utils/safeadd.pyx"])
+
+    # NOTE: See https://github.com/hmmlearn/hmmlearn/issues/43. However,
+    # cythonize doesn't pass include_path to Extension either, so we're
+    # hacking it directly.
+    #
+    # NOTE: This needs to be done after the above cythonize call since
+    # they're just strings otherwise.
+    for em in setup_options["ext_modules"]:
+        em.include_dirs = [np.get_include()]
+
+except ImportError:
+    pass
 
 setup(**setup_options)
