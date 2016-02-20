@@ -11,7 +11,8 @@ from sklearn.externals import six
 
 from .base import BaseSequenceClassifier
 from ._utils import (atleast2d_or_csr, check_random_state, count_trans,
-                     make_trans_matrix, safe_add, safe_sparse_dot)
+                     make_trans_matrix, safe_add, safe_sparse_dot,
+                     make_trans_mask)
 
 class StructuredPerceptron(BaseSequenceClassifier):
     """Structured perceptron for sequence classification.
@@ -41,6 +42,11 @@ class StructuredPerceptron(BaseSequenceClassifier):
         individual labels. This requires more time, more memory and more
         samples to train properly.
 
+    trans_constraints : array-like, shape(,3)
+        A list of tuples where each tuple is a constraint on the transisition
+        matrix.  Each tuple is of the form (from_state_string, to_state_string, fixed_probability )
+        It overrides the transition matrix to ensure these probabilities are fixed.
+
     verbose : integer, optional
         Verbosity level. Defaults to zero (quiet mode).
 
@@ -54,13 +60,15 @@ class StructuredPerceptron(BaseSequenceClassifier):
 
     """
     def __init__(self, decode="viterbi", lr_exponent=.1, max_iter=10,
-                 random_state=None, trans_features=False, verbose=0):
+                 random_state=None, trans_features=False, trans_constraints=None, verbose=0):
         self.decode = decode
         self.lr_exponent = lr_exponent
         self.max_iter = max_iter
         self.random_state = random_state
         self.trans_features = trans_features
+        self.trans_constraints = trans_constraints
         self.verbose = verbose
+        self.CONSTRAINT_VALUE = -20
 
     def fit(self, X, y, lengths):
         """Fit to a set of sequences.
@@ -81,6 +89,7 @@ class StructuredPerceptron(BaseSequenceClassifier):
         -------
         self : StructuredPerceptron
         """
+        import numpy.ma as ma        
 
         decode = self._get_decoder()
 
@@ -94,6 +103,11 @@ class StructuredPerceptron(BaseSequenceClassifier):
         class_range = np.arange(n_classes)
         Y_true = y.reshape(-1, 1) == class_range
 
+        if self.trans_constraints:
+            trans_mask = make_trans_mask(self.trans_constraints, classes)
+        else :
+            trans_mask = make_trans_mask([], classes)
+
         lengths = np.asarray(lengths)
         n_samples, n_features = X.shape
 
@@ -101,7 +115,9 @@ class StructuredPerceptron(BaseSequenceClassifier):
         start = end - lengths
 
         w = np.zeros((n_classes, n_features), order='F')
-        b_trans = np.zeros((n_classes, n_classes))
+        b_trans = ma.masked_array(np.zeros((n_classes, n_classes)),
+                                  mask=trans_mask,
+                                  fill_value=self.CONSTRAINT_VALUE).harden_mask()
         b_init = np.zeros(n_classes)
         b_final = np.zeros(n_classes)
 
@@ -124,7 +140,6 @@ class StructuredPerceptron(BaseSequenceClassifier):
 
         for it in six.moves.xrange(1, self.max_iter + 1):
             lr = 1. / (it ** lr_exponent)
-
             if self.verbose:
                 print("Iteration {0:2d}".format(it), end="... ")
                 sys.stdout.flush()
@@ -132,7 +147,6 @@ class StructuredPerceptron(BaseSequenceClassifier):
             rng.shuffle(sequence_ids)
 
             sum_loss = 0
-
             for i in sequence_ids:
                 X_i = X[start[i]:end[i]]
                 score = safe_sparse_dot(X_i, w.T)
@@ -141,7 +155,7 @@ class StructuredPerceptron(BaseSequenceClassifier):
                     trans_score = trans_score.reshape(-1, n_classes, n_classes)
                 else:
                     trans_score = None
-                y_pred = decode(score, trans_score, b_trans, b_init, b_final)
+                y_pred = decode(score, trans_score, b_trans.filled(), b_init, b_final)
                 y_t_i = y[start[i]:end[i]]
                 loss = (y_pred != y_t_i).sum()
 
@@ -153,6 +167,7 @@ class StructuredPerceptron(BaseSequenceClassifier):
                     Y_pred = Y_pred.astype(np.float64)
 
                     Y_diff = csc_matrix(Y_pred - Y_t_i)
+
                     Y_diff *= -lr
                     w_update = safe_sparse_dot(Y_diff.T, X_i)
 
@@ -209,7 +224,7 @@ class StructuredPerceptron(BaseSequenceClassifier):
         if self.trans_features:
             self.coef_trans_ = w_trans
         self.intercept_init_ = b_init
-        self.intercept_trans_ = b_trans
+        self.intercept_trans_ = b_trans.filled()
         self.intercept_final_ = b_final
 
         self.classes_ = classes
