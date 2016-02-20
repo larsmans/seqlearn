@@ -18,6 +18,7 @@ from sklearn.utils.extmath import safe_sparse_dot
 from .ctrans import count_trans
 from .safeadd import safe_add
 from .transmatrix import make_trans_matrix
+from .transmatrix import make_trans_mask
 
 
 def _assert_all_finite(X):
