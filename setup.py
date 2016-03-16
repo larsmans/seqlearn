@@ -19,6 +19,17 @@ def readme():
         return "seqlearn: sequence classification library for Python"
 
 
+# For these actions, NumPy is not required. We want them to succeed without,
+# for example when pip is used to install seqlearn without NumPy present.
+NO_NUMPY_ACTIONS = ('--help-commands', 'egg_info', '--version', 'clean')
+if not ('--help' in sys.argv[1:]
+        or len(sys.argv) > 1 and sys.argv[1] in NO_NUMPY_ACTIONS):
+    import numpy
+    includes = [numpy.get_include()]
+else:
+    includes = []
+
+
 setup_options = dict(
     name="seqlearn",
     version=version,
@@ -43,19 +54,13 @@ setup_options = dict(
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.3",
     ],
-    ext_modules=cythonize(["seqlearn/_decode/bestfirst.pyx",
+    ext_modules=[Extension(os.path.splitext(p)[0].replace('/', '.'), [p],
+                           include_dirs=includes)
+                 for p in ["seqlearn/_decode/bestfirst.pyx",
                            "seqlearn/_decode/viterbi.pyx",
                            "seqlearn/_utils/ctrans.pyx",
-                           "seqlearn/_utils/safeadd.pyx"]),
+                           "seqlearn/_utils/safeadd.pyx"]],
     requires=["sklearn"],
 )
-
-# For these actions, NumPy is not required. We want them to succeed without,
-# for example when pip is used to install seqlearn without NumPy present.
-NO_NUMPY_ACTIONS = ('--help-commands', 'egg_info', '--version', 'clean')
-if not ('--help' in sys.argv[1:]
-        or len(sys.argv) > 1 and sys.argv[1] in NO_NUMPY_ACTIONS):
-    import numpy
-    setup_options['include_dirs'] = [numpy.get_include()]
 
 setup(**setup_options)
