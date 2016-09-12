@@ -64,7 +64,7 @@ class MultinomialHMM(BaseSequenceClassifier):
 
         init_prob = np.log(Y[start].sum(axis=0) + alpha)
         init_prob -= logsumexp(init_prob)
-        final_prob = np.log(Y[start].sum(axis=0) + alpha)
+        final_prob = np.log(Y[end - 1].sum(axis=0) + alpha)
         final_prob -= logsumexp(final_prob)
 
         feature_prob = np.log(safe_sparse_dot(Y.T, X) + alpha)
