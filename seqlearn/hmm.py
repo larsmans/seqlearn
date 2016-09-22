@@ -68,10 +68,10 @@ class MultinomialHMM(BaseSequenceClassifier):
         final_prob -= logsumexp(final_prob)
 
         feature_prob = np.log(safe_sparse_dot(Y.T, X) + alpha)
-        feature_prob -= logsumexp(feature_prob, axis=0)
+        feature_prob -= logsumexp(feature_prob, axis=1)[:, np.newaxis]
 
         trans_prob = np.log(count_trans(y, len(classes)) + alpha)
-        trans_prob -= logsumexp(trans_prob, axis=0)
+        trans_prob -= logsumexp(trans_prob, axis=1)[:, np.newaxis]
 
         self.coef_ = feature_prob
         self.intercept_init_ = init_prob
