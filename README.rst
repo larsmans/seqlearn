@@ -58,6 +58,11 @@ For more information, see the `documentation
 <http://larsmans.github.io/seqlearn>`_.
 
 
+Debugging Notes
+---------------
+
+If you're using the .score() method, note that it might not be evaluating/scoring the right granularity (for example, evaluating letter by letter versus word by word when your model outputs words). Also check out whole_sequence_accuracy() method. 
+
 |Travis|_
 
 .. |Travis| image:: https://api.travis-ci.org/larsmans/seqlearn.png?branch=master
