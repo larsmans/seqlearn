@@ -13,11 +13,11 @@ cdef np.float64_t NEGINF = -np.inf
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-def viterbi(np.ndarray[ndim=2, dtype=np.float64_t] score,
-            np.ndarray[ndim=3, dtype=np.float64_t] trans_score,
-            np.ndarray[ndim=2, dtype=np.float64_t] b_trans,
-            np.ndarray[ndim=1, dtype=np.float64_t] init,
-            np.ndarray[ndim=1, dtype=np.float64_t] final):
+def viterbi(np.ndarray[ndim=2, dtype=np.float] score,
+            np.ndarray[ndim=3, dtype=np.float] trans_score,
+            np.ndarray[ndim=2, dtype=np.float] b_trans,
+            np.ndarray[ndim=1, dtype=np.float] init,
+            np.ndarray[ndim=1, dtype=np.float] final):
     """First-order Viterbi algorithm.
 
     Parameters
