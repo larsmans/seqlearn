@@ -10,7 +10,7 @@ np.import_array()
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-def safe_add(np.ndarray[ndim=2, dtype=np.float64_t] A, B):
+def safe_add(np.ndarray[ndim=2, dtype=np.float] A, B):
     """A += B where B is a sparse (CSR or CSC) matrix.
 
     __rsub__ on a sparse matrix densifies prior to subtracting, making it
@@ -20,7 +20,7 @@ def safe_add(np.ndarray[ndim=2, dtype=np.float64_t] A, B):
     """
 
     cdef:
-        np.ndarray[ndim=1, dtype=np.float64_t, mode="c"] data
+        np.ndarray[ndim=1, dtype=np.float, mode="c"] data
         np.ndarray[ndim=1, dtype=int, mode="c"] indices
         np.ndarray[ndim=1, dtype=int, mode="c"] indptr
 
