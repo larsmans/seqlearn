@@ -11,11 +11,11 @@ cdef np.float64_t NEGINF = -np.inf
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-def bestfirst(np.ndarray[ndim=2, dtype=np.float64_t] score,
+def bestfirst(np.ndarray[ndim=2, dtype=np.float] score,
               trans_score,
-              np.ndarray[ndim=2, dtype=np.float64_t] trans,
-              np.ndarray[ndim=1, dtype=np.float64_t, mode="c"] init,
-              np.ndarray[ndim=1, dtype=np.float64_t, mode="c"] final):
+              np.ndarray[ndim=2, dtype=np.float] trans,
+              np.ndarray[ndim=1, dtype=np.float, mode="c"] init,
+              np.ndarray[ndim=1, dtype=np.float, mode="c"] final):
     """First-order heuristic best-first decoder.
 
     See viterbi for the arguments. score may be overwritten.
