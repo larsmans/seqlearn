@@ -6,16 +6,16 @@ import numpy as np
 
 np.import_array()
 
-cdef np.float64_t NEGINF = -np.inf
+cdef np.float64 NEGINF = -np.inf
 
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-def bestfirst(np.ndarray[ndim=2, dtype=np.float64_t] score,
+def bestfirst(np.ndarray[ndim=2, dtype=np.float64] score,
               trans_score,
-              np.ndarray[ndim=2, dtype=np.float64_t] trans,
-              np.ndarray[ndim=1, dtype=np.float64_t, mode="c"] init,
-              np.ndarray[ndim=1, dtype=np.float64_t, mode="c"] final):
+              np.ndarray[ndim=2, dtype=np.float64] trans,
+              np.ndarray[ndim=1, dtype=np.float64, mode="c"] init,
+              np.ndarray[ndim=1, dtype=np.float64, mode="c"] final):
     """First-order heuristic best-first decoder.
 
     See viterbi for the arguments. score may be overwritten.
@@ -24,7 +24,7 @@ def bestfirst(np.ndarray[ndim=2, dtype=np.float64_t] score,
 
     cdef:
         np.ndarray[ndim=1, dtype=np.npy_intp, mode="c"] path
-        np.float64_t candidate, maxval
+        np.float64 candidate, maxval
         np.npy_intp i, j, maxind, n_samples, n_states
 
     if trans_score is not None:

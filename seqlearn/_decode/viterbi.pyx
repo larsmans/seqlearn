@@ -8,16 +8,16 @@ import numpy as np
 
 np.import_array()
 
-cdef np.float64_t NEGINF = -np.inf
+cdef np.float64 NEGINF = -np.inf
 
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-def viterbi(np.ndarray[ndim=2, dtype=np.float64_t] score,
-            np.ndarray[ndim=3, dtype=np.float64_t] trans_score,
-            np.ndarray[ndim=2, dtype=np.float64_t] b_trans,
-            np.ndarray[ndim=1, dtype=np.float64_t] init,
-            np.ndarray[ndim=1, dtype=np.float64_t] final):
+def viterbi(np.ndarray[ndim=2, dtype=np.float64] score,
+            np.ndarray[ndim=3, dtype=np.float64] trans_score,
+            np.ndarray[ndim=2, dtype=np.float64] b_trans,
+            np.ndarray[ndim=1, dtype=np.float64] init,
+            np.ndarray[ndim=1, dtype=np.float64] final):
     """First-order Viterbi algorithm.
 
     Parameters
@@ -41,7 +41,7 @@ def viterbi(np.ndarray[ndim=2, dtype=np.float64_t] score,
 
     cdef np.ndarray[ndim=2, dtype=np.npy_intp, mode='c'] backp
     cdef np.ndarray[ndim=1, dtype=np.npy_intp, mode='c'] path
-    cdef np.float64_t candidate, maxval
+    cdef np.float64 candidate, maxval
     cdef np.npy_intp i, j, k, n_samples, n_states
 
     n_samples, n_states = score.shape[0], score.shape[1]
