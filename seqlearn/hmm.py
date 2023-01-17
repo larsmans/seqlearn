@@ -1,7 +1,7 @@
 """Hidden Markov models (HMMs) with supervised training."""
 
 import numpy as np
-from scipy.misc import logsumexp
+from scipy.special import logsumexp
 
 from .base import BaseSequenceClassifier
 from ._utils import atleast2d_or_csr, count_trans, safe_sparse_dot

@@ -1,7 +1,7 @@
 import numpy as np
 from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.metrics import accuracy_score
-from sklearn.externals import six
+import six
 
 from ._decode import DECODERS
 from ._utils import atleast2d_or_csr, safe_sparse_dot, validate_lengths

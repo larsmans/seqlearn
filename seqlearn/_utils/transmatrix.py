@@ -3,7 +3,7 @@
 
 import numpy as np
 from scipy.sparse import csr_matrix
-from sklearn.externals import six
+import six
 
 
 def make_trans_matrix(y, n_classes, dtype=np.float64):
